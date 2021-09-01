@@ -1,6 +1,6 @@
 {
   "name": "@educational-technology-collective/etc_jupyterlab_telemetry_library",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A JupyterLab extension.",
   "keywords": [
     "jupyter",
@@ -64,8 +64,8 @@
     "@typescript-eslint/parser": "^4.8.1",
     "eslint": "^7.14.0",
     "eslint-config-prettier": "^6.15.0",
-    "eslint-plugin-prettier": "^3.1.4", 
-    "mkdirp": "^1.0.3", 
+    "eslint-plugin-prettier": "^3.1.4",
+    "mkdirp": "^1.0.3",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.1.1",
     "rimraf": "^3.0.2",
@@ -76,7 +76,7 @@
     "style/index.js"
   ],
   "styleModule": "style/index.js",
-  "jupyterlab": { 
+  "jupyterlab": {
     "sharedPackages": {
       "@educational-technology-collective/etc_jupyterlab_notebook_state_provider": {
         "bundled": false,
@@ -85,15 +85,15 @@
       }
     },
     "discovery": {
-        "server": {
-          "managers": [
-            "pip"
-          ],
-          "base": {
-            "name": "etc_jupyterlab_telemetry_library"
-          }
+      "server": {
+        "managers": [
+          "pip"
+        ],
+        "base": {
+          "name": "etc_jupyterlab_telemetry_library"
         }
-    }, 
+      }
+    },
     "extension": true,
     "outputDir": "etc_jupyterlab_telemetry_library/labextension",
     "schemaDir": "schema"
