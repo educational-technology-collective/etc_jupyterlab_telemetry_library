@@ -1,0 +1,26 @@
+{
+    "mentoracademy.org/schemas/events/1.0.0/NotebookSaveEvent": {
+        "enable": true
+    },
+    "mentoracademy.org/schemas/events/1.0.0/NotebookOpenEvent": {
+        "enable": true
+    },
+    "mentoracademy.org/schemas/events/1.0.0/CellRemoveEvent": {
+        "enable": true
+    },
+    "mentoracademy.org/schemas/events/1.0.0/CellAddEvent": {
+        "enable": true
+    },
+    "mentoracademy.org/schemas/events/1.0.0/CellExecutionEvent": {
+        "enable": true
+    },
+    "mentoracademy.org/schemas/events/1.0.0/NotebookScrollEvent": {
+        "enable": true
+    },
+    "mentoracademy.org/schemas/events/1.0.0/ActiveCellChangeEvent": {
+        "enable": true
+    },
+    "mentoracademy.org/schemas/events/1.0.0/CellErrorEvent": {
+        "enable": true
+    }
+}
