@@ -1,0 +1,8 @@
+{
+  "jupyter.lab.shortcuts": [],
+  "title": "@educational-technology-collective/etc_jupyterlab_telemetry_library",
+  "description": "@educational-technology-collective/etc_jupyterlab_telemetry_library settings.",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false
+}

@@ -1,0 +1,7 @@
+{
+  "ServerApp": {
+    "jpserver_extensions": {
+      "etc_jupyterlab_telemetry_library": true
+    }
+  }
+}

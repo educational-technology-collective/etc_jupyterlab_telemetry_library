@@ -1,0 +1,7 @@
+{
+  "NotebookApp": {
+    "nbserver_extensions": {
+      "etc_jupyterlab_telemetry_library": true
+    }
+  }
+}
