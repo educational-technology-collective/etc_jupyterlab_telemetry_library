@@ -17,7 +17,6 @@ import {
   CellErrorEvent
 } from "./events";
 
-
 import { requestAPI } from "./handler";
 
 const PLUGIN_ID = '@educational-technology-collective/etc_jupyterlab_telemetry_library:plugin'
@@ -34,12 +33,18 @@ export interface IETCJupyterLabTelemetryLibraryFactory {
 
 class ETCJupyterLabTelemetryLibraryFactory implements IETCJupyterLabTelemetryLibraryFactory {
 
+  private _config: object;
+
+  constructor({ config }: { config: object }) {
+    this._config = config;
+  }
+
   create(
     { notebookPanel, config }:
       { notebookPanel: NotebookPanel, config: object }
   ): ETCJupyterLabTelemetryLibrary {
 
-    return new ETCJupyterLabTelemetryLibrary({ notebookPanel,config });
+    return new ETCJupyterLabTelemetryLibrary({ notebookPanel, config: this._config });
   }
 }
 
@@ -117,58 +122,51 @@ const plugin: JupyterFrontEndPlugin<IETCJupyterLabTelemetryLibraryFactory> = {
   ): Promise<IETCJupyterLabTelemetryLibraryFactory> => {
     console.log(`The JupyterLab plugin ${PLUGIN_ID} is activated!`);
 
-    let config: object;
+    let config = await requestAPI<object>("config");
 
-    try {
-      config = await requestAPI<object>("config");
-    }
-    catch (e) {
-      console.error(e);
-    }
+    let etcJupyterLabTelemetryLibraryFactory = new ETCJupyterLabTelemetryLibraryFactory({ config });
 
-    // TEST
+    // // TEST
+    // class MessageAdapter {
+    //   constructor() { }
 
-    class MessageAdapter {
-      constructor() { }
+    //   log(sender: any, args: any) {
 
-      log(sender: any, args: any) {
+    //     let notebookPanel = args.notebookPanel;
 
-        let notebookPanel = args.notebookPanel;
+    //     delete args.notebookPanel;
 
-        delete args.notebookPanel;
+    //     let notebookState = etcJupyterLabNotebookStateProvider.getNotebookState({ notebookPanel: notebookPanel })
 
-        let notebookState = etcJupyterLabNotebookStateProvider.getNotebookState({ notebookPanel: notebookPanel })
+    //     let data = {
+    //       ...args, ...notebookState
+    //     }
 
-        let data = {
-          ...args, ...notebookState
-        }
+    //     console.log("etc_jupyterlab_telemetry_extension", data);
+    //   }
+    // }
 
-        console.log("etc_jupyterlab_telemetry_extension", data);
-      }
-    }
+    // let messageAdapter = new MessageAdapter();
 
-    let messageAdapter = new MessageAdapter();
+    // notebookTracker.widgetAdded.connect(async (sender: INotebookTracker, notebookPanel: NotebookPanel) => {
 
-    let etcJupyterLabTelemetryLibraryFactory = new ETCJupyterLabTelemetryLibraryFactory();
+    //   etcJupyterLabNotebookStateProvider.addNotebookPanel({ notebookPanel });
 
-    notebookTracker.widgetAdded.connect(async (sender: INotebookTracker, notebookPanel: NotebookPanel) => {
+    //   let etcJupyterLabTelemetryLibrary = etcJupyterLabTelemetryLibraryFactory.create({ notebookPanel, config });
 
-      etcJupyterLabNotebookStateProvider.addNotebookPanel({ notebookPanel });
-
-      let etcJupyterLabTelemetryLibrary = etcJupyterLabTelemetryLibraryFactory.create({ notebookPanel, config });
-
-      etcJupyterLabTelemetryLibrary.notebookOpenEvent.notebookOpened.connect(messageAdapter.log);
-      etcJupyterLabTelemetryLibrary.notebookSaveEvent.notebookSaved.connect(messageAdapter.log);
-      etcJupyterLabTelemetryLibrary.activeCellChangeEvent.activeCellChanged.connect(messageAdapter.log);
-      etcJupyterLabTelemetryLibrary.cellAddEvent.cellAdded.connect(messageAdapter.log);
-      etcJupyterLabTelemetryLibrary.cellRemoveEvent.cellRemoved.connect(messageAdapter.log);
-      etcJupyterLabTelemetryLibrary.notebookScrollEvent.notebookScrolled.connect(messageAdapter.log);
-      etcJupyterLabTelemetryLibrary.cellExecutionEvent.cellExecuted.connect(messageAdapter.log);
-      etcJupyterLabTelemetryLibrary.cellErrorEvent.cellErrored.connect(messageAdapter.log);
-    });
-    // TEST
+    //   etcJupyterLabTelemetryLibrary.notebookOpenEvent.notebookOpened.connect(messageAdapter.log);
+    //   etcJupyterLabTelemetryLibrary.notebookSaveEvent.notebookSaved.connect(messageAdapter.log);
+    //   etcJupyterLabTelemetryLibrary.activeCellChangeEvent.activeCellChanged.connect(messageAdapter.log);
+    //   etcJupyterLabTelemetryLibrary.cellAddEvent.cellAdded.connect(messageAdapter.log);
+    //   etcJupyterLabTelemetryLibrary.cellRemoveEvent.cellRemoved.connect(messageAdapter.log);
+    //   etcJupyterLabTelemetryLibrary.notebookScrollEvent.notebookScrolled.connect(messageAdapter.log);
+    //   etcJupyterLabTelemetryLibrary.cellExecutionEvent.cellExecuted.connect(messageAdapter.log);
+    //   etcJupyterLabTelemetryLibrary.cellErrorEvent.cellErrored.connect(messageAdapter.log);
+    // });
+    // // TEST
 
     return etcJupyterLabTelemetryLibraryFactory;
+
   }
 };
 
