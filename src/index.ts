@@ -152,7 +152,7 @@ const plugin: JupyterFrontEndPlugin<IETCJupyterLabTelemetryLibraryFactory> = {
 
     //   etcJupyterLabNotebookStateProvider.addNotebookPanel({ notebookPanel });
 
-    //   let etcJupyterLabTelemetryLibrary = etcJupyterLabTelemetryLibraryFactory.create({ notebookPanel, config });
+    //   let etcJupyterLabTelemetryLibrary = etcJupyterLabTelemetryLibraryFactory.create({ notebookPanel });
 
     //   etcJupyterLabTelemetryLibrary.notebookOpenEvent.notebookOpened.connect(messageAdapter.log);
     //   etcJupyterLabTelemetryLibrary.notebookSaveEvent.notebookSaved.connect(messageAdapter.log);
