@@ -14,7 +14,8 @@ import {
   ActiveCellChangeEvent,
   CellAddEvent,
   CellRemoveEvent,
-  CellErrorEvent
+  CellErrorEvent,
+  NotebookCloseEvent
 } from "./events";
 
 import { requestAPI } from "./handler";
@@ -51,6 +52,7 @@ class ETCJupyterLabTelemetryLibraryFactory implements IETCJupyterLabTelemetryLib
 export class ETCJupyterLabTelemetryLibrary {
 
   public notebookOpenEvent: NotebookOpenEvent;
+  public notebookCloseEvent: NotebookCloseEvent;
   public notebookSaveEvent: NotebookSaveEvent;
   public cellExecutionEvent: CellExecutionEvent;
   public cellErrorEvent: CellErrorEvent;
@@ -64,6 +66,11 @@ export class ETCJupyterLabTelemetryLibrary {
   }: {
     notebookPanel: NotebookPanel, config: IConfig
   }) {
+
+    this.notebookCloseEvent = new NotebookCloseEvent({
+      notebookPanel: notebookPanel,
+      config: config
+    });
 
     this.notebookOpenEvent = new NotebookOpenEvent({
       notebookPanel: notebookPanel,

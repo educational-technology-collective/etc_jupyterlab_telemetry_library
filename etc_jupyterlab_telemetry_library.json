@@ -2,6 +2,9 @@
     "mentoracademy.org/schemas/events/1.0.0/NotebookSaveEvent": {
         "enable": true
     },
+    "mentoracademy.org/schemas/events/1.0.0/NotebookCloseEvent": {
+        "enable": true
+    },
     "mentoracademy.org/schemas/events/1.0.0/NotebookOpenEvent": {
         "enable": true
     },

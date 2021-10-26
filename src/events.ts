@@ -28,6 +28,56 @@ import { IMessage, MessageType } from "@jupyterlab/services/lib/kernel/messages"
 
 import { ICellMeta, INotebookEventOptions } from './types';
 
+export class NotebookCloseEvent {
+
+    private _notebookClosed: Signal<NotebookCloseEvent, any> = new Signal(this);
+    private _notebookPanel: NotebookPanel;
+    private _notebook: Notebook;
+
+    constructor({ notebookPanel, config }: INotebookEventOptions) {
+
+        this._notebookPanel = notebookPanel;
+        this._notebook = notebookPanel.content;
+
+        if (["mentoracademy.org/schemas/events/1.0.0/NotebookCloseEvent", "enable"]) {
+            (async () => {
+                try {
+
+                    await notebookPanel.revealed;
+
+                    notebookPanel.disposed.connect(this.onNotebookDisposed, this);
+                }
+                catch (e) {
+                    console.error(e);
+                }
+            })();
+        }
+
+        notebookPanel.disposed.connect(this.onDisposed, this);
+    }
+
+    onDisposed() {
+
+        Signal.disconnectAll(this);
+    }
+
+    private onNotebookDisposed(): void {
+
+        let cells = this._notebook.widgets.map((cell: Cell<ICellModel>, index: number) =>
+            ({ id: cell.model.id, index: index })
+        );
+
+        this._notebookClosed.emit({
+            event_name: "open_notebook",
+            cells: cells,
+            notebookPanel: this._notebookPanel
+        });
+    }
+
+    get notebookClosed(): ISignal<NotebookCloseEvent, any> {
+        return this._notebookClosed
+    }
+}
 
 export class NotebookSaveEvent {
 
@@ -38,7 +88,7 @@ export class NotebookSaveEvent {
 
         this._notebookPanel = notebookPanel;
 
-        notebookPanel.disposed.connect(this.dispose, this);
+        notebookPanel.disposed.connect(this.onDisposed, this);
 
         if (config['mentoracademy.org/schemas/events/1.0.0/NotebookSaveEvent']['enable']) {
 
@@ -56,7 +106,7 @@ export class NotebookSaveEvent {
         }
     }
 
-    dispose() {
+    onDisposed() {
         Signal.disconnectAll(this);
     }
 
@@ -107,7 +157,7 @@ export class CellExecutionEvent {
         this._notebookPanel = notebookPanel;
         this._notebook = notebookPanel.content;
 
-        notebookPanel.disposed.connect(this.dispose, this);
+        notebookPanel.disposed.connect(this.onDisposed, this);
 
         if (config['mentoracademy.org/schemas/events/1.0.0/CellExecutionEvent']['enable']) {
             (async () => {
@@ -124,7 +174,7 @@ export class CellExecutionEvent {
         }
     }
 
-    dispose() {
+    onDisposed() {
 
         Signal.disconnectAll(this);
     }
@@ -169,7 +219,7 @@ export class NotebookScrollEvent {
 
         this.onScrolled = this.onScrolled.bind(this);
 
-        notebookPanel.disposed.connect(this.dispose, this);
+        notebookPanel.disposed.connect(this.onDisposed, this);
 
         if (config['mentoracademy.org/schemas/events/1.0.0/NotebookScrollEvent']['enable']) {
 
@@ -187,7 +237,7 @@ export class NotebookScrollEvent {
         }
     }
 
-    dispose() {
+    onDisposed() {
 
         Signal.disconnectAll(this);
     }
@@ -248,7 +298,7 @@ export class ActiveCellChangeEvent {
         this._notebookPanel = notebookPanel;
         this._notebook = notebookPanel.content;
 
-        notebookPanel.disposed.connect(this.dispose, this);
+        notebookPanel.disposed.connect(this.onDisposed, this);
 
         if (config['mentoracademy.org/schemas/events/1.0.0/ActiveCellChangeEvent']['enable']) {
             (async () => {
@@ -266,7 +316,7 @@ export class ActiveCellChangeEvent {
         }
     }
 
-    dispose() {
+    onDisposed() {
         Signal.disconnectAll(this);
     }
 
@@ -304,7 +354,7 @@ export class NotebookOpenEvent {
         this._notebookPanel = notebookPanel;
         this._notebook = notebookPanel.content;
 
-        notebookPanel.disposed.connect(this.dispose, this);
+        notebookPanel.disposed.connect(this.onDisposed, this);
 
         if (["mentoracademy.org/schemas/events/1.0.0/NotebookOpenEvent", "enable"]) {
             if (!this._once) {
@@ -323,7 +373,7 @@ export class NotebookOpenEvent {
         }
     }
 
-    dispose() {
+    onDisposed() {
 
         Signal.disconnectAll(this);
     }
@@ -357,7 +407,7 @@ export class CellAddEvent {
 
         this._notebookPanel = notebookPanel;
 
-        notebookPanel.disposed.connect(this.dispose, this);
+        notebookPanel.disposed.connect(this.onDisposed, this);
 
         if (config['mentoracademy.org/schemas/events/1.0.0/CellAddEvent']['enable']) {
             (async () => {
@@ -374,7 +424,7 @@ export class CellAddEvent {
         }
     }
 
-    dispose() {
+    onDisposed() {
 
         Signal.disconnectAll(this);
     }
@@ -409,7 +459,7 @@ export class CellRemoveEvent {
 
         this._notebookPanel = notebookPanel;
 
-        notebookPanel.disposed.connect(this.dispose, this);
+        notebookPanel.disposed.connect(this.onDisposed, this);
 
         if (config['mentoracademy.org/schemas/events/1.0.0/CellRemoveEvent']['enable']) {
             (async () => {
@@ -426,7 +476,7 @@ export class CellRemoveEvent {
         }
     }
 
-    dispose() {
+    onDisposed() {
 
         Signal.disconnectAll(this);
     }
@@ -461,7 +511,7 @@ export class CellErrorEvent {
 
         this._notebookPanel = notebookPanel;
 
-        notebookPanel.disposed.connect(this.dispose, this);
+        notebookPanel.disposed.connect(this.onDisposed, this);
 
         if (config['mentoracademy.org/schemas/events/1.0.0/CellErrorEvent']['enable']) {
             (async () => {
@@ -478,7 +528,7 @@ export class CellErrorEvent {
         }
     }
 
-    dispose() {
+    onDisposed() {
 
         Signal.disconnectAll(this);
     }
