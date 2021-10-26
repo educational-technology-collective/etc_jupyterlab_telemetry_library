@@ -19,6 +19,8 @@ import {
 
 import { requestAPI } from "./handler";
 
+import { IConfig } from './types';
+
 const PLUGIN_ID = '@educational-technology-collective/etc_jupyterlab_telemetry_library:plugin'
 
 export const IETCJupyterLabTelemetryLibraryFactory = new Token<IETCJupyterLabTelemetryLibraryFactory>(PLUGIN_ID);
@@ -33,16 +35,14 @@ export interface IETCJupyterLabTelemetryLibraryFactory {
 
 class ETCJupyterLabTelemetryLibraryFactory implements IETCJupyterLabTelemetryLibraryFactory {
 
-  private _config: object;
+  private _config: IConfig;
 
-  constructor({ config }: { config: object }) {
+  constructor({ config }: { config: IConfig }) {
+
     this._config = config;
   }
 
-  create(
-    { notebookPanel, config }:
-      { notebookPanel: NotebookPanel, config: object }
-  ): ETCJupyterLabTelemetryLibrary {
+  create({ notebookPanel }: { notebookPanel: NotebookPanel }): ETCJupyterLabTelemetryLibrary {
 
     return new ETCJupyterLabTelemetryLibrary({ notebookPanel, config: this._config });
   }
@@ -62,7 +62,7 @@ export class ETCJupyterLabTelemetryLibrary {
   constructor({
     notebookPanel, config
   }: {
-    notebookPanel: NotebookPanel, config: object
+    notebookPanel: NotebookPanel, config: IConfig
   }) {
 
     this.notebookOpenEvent = new NotebookOpenEvent({
@@ -122,7 +122,7 @@ const plugin: JupyterFrontEndPlugin<IETCJupyterLabTelemetryLibraryFactory> = {
   ): Promise<IETCJupyterLabTelemetryLibraryFactory> => {
     console.log(`The JupyterLab plugin ${PLUGIN_ID} is activated!`);
 
-    let config = await requestAPI<object>("config");
+    let config = await requestAPI<IConfig>("config");
 
     let etcJupyterLabTelemetryLibraryFactory = new ETCJupyterLabTelemetryLibraryFactory({ config });
 
