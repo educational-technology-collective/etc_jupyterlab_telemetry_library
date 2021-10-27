@@ -114,12 +114,14 @@ const plugin: JupyterFrontEndPlugin<IETCJupyterLabTelemetryLibraryFactory> = {
   id: PLUGIN_ID,
   autoStart: true,
   provides: IETCJupyterLabTelemetryLibraryFactory,
-  requires: [INotebookTracker, IETCJupyterLabNotebookStateProvider],
+  requires: [INotebookTracker],
+  optional: [IETCJupyterLabNotebookStateProvider],
   activate: async (
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
     etcJupyterLabNotebookStateProvider: IETCJupyterLabNotebookStateProvider
   ): Promise<IETCJupyterLabTelemetryLibraryFactory> => {
+
     console.log(`The JupyterLab plugin ${PLUGIN_ID} is activated!`);
 
     let config = await requestAPI<IConfig>("config");
