@@ -28,56 +28,62 @@ import { IMessage, MessageType } from "@jupyterlab/services/lib/kernel/messages"
 
 import { ICellMeta, INotebookEventOptions } from './types';
 
-export class NotebookCloseEvent {
+// export class NotebookCloseEvent {
 
-    private _notebookClosed: Signal<NotebookCloseEvent, any> = new Signal(this);
-    private _notebookPanel: NotebookPanel;
-    private _notebook: Notebook;
+//     private _notebookClosed: Signal<NotebookCloseEvent, any> = new Signal(this);
+//     // private _notebookPanel: NotebookPanel;
+//     // private _notebook: Notebook;
 
-    constructor({ notebookPanel, config }: INotebookEventOptions) {
+//     constructor({ notebookPanel, config }: INotebookEventOptions) {
 
-        this._notebookPanel = notebookPanel;
-        this._notebook = notebookPanel.content;
+//         // this._notebookPanel = notebookPanel;
+//         // this._notebook = notebookPanel.content;
 
-        if (["mentoracademy.org/schemas/events/1.0.0/NotebookCloseEvent", "enable"]) {
-            (async () => {
-                try {
+//         if (config['mentoracademy.org/schemas/events/1.0.0/NotebookCloseEvent']['enable']) {
+//             (async () => {
+//                 try {
 
-                    await notebookPanel.revealed;
+//                     await notebookPanel.revealed;
 
-                    notebookPanel.disposed.connect(this.onNotebookDisposed, this);
-                }
-                catch (e) {
-                    console.error(e);
-                }
-            })();
-        }
+//                     console.log(notebookPanel.id);
 
-        notebookPanel.disposed.connect(this.onDisposed, this);
-    }
+//                     let node = document.querySelector(`[data-id="${notebookPanel.id}"] .lm-TabBar-tabCloseIcon`);
 
-    onDisposed() {
+//                     node?.addEventListener('click', () => {
+//                         console.log(notebookPanel.content.widgets);
+//                     })
+//                 }
+//                 catch (e) {
+//                     console.error(e);
+//                 }
+//             })();
+//         }
+//     }
 
-        Signal.disconnectAll(this);
-    }
+//     onDisposed() {
 
-    private onNotebookDisposed(): void {
+//         Signal.disconnectAll(this);
+//     }
 
-        let cells = this._notebook.widgets.map((cell: Cell<ICellModel>, index: number) =>
-            ({ id: cell.model.id, index: index })
-        );
+//     // private onNotebookDisposed(): void {
 
-        this._notebookClosed.emit({
-            event_name: "open_notebook",
-            cells: cells,
-            notebookPanel: this._notebookPanel
-        });
-    }
+//     //     console.log('private onNotebookDisposed(): void {');
 
-    get notebookClosed(): ISignal<NotebookCloseEvent, any> {
-        return this._notebookClosed
-    }
-}
+//     //     let cells = this._notebook.widgets.map((cell: Cell<ICellModel>, index: number) =>
+//     //         ({ id: cell.model.id, index: index })
+//     //     );
+
+//     //     this._notebookClosed.emit({
+//     //         event_name: "close_notebook",
+//     //         cells: cells,
+//     //         notebookPanel: this._notebookPanel
+//     //     });
+//     // }
+
+//     get notebookClosed(): ISignal<NotebookCloseEvent, any> {
+//         return this._notebookClosed
+//     }
+// }
 
 export class NotebookSaveEvent {
 
@@ -356,7 +362,7 @@ export class NotebookOpenEvent {
 
         notebookPanel.disposed.connect(this.onDisposed, this);
 
-        if (["mentoracademy.org/schemas/events/1.0.0/NotebookOpenEvent", "enable"]) {
+        if (config['mentoracademy.org/schemas/events/1.0.0/NotebookOpenEvent']['enable']) {
             if (!this._once) {
                 (async () => {
                     try {

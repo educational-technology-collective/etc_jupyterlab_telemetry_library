@@ -7,6 +7,9 @@ export interface IConfig {
     "mentoracademy.org/schemas/events/1.0.0/NotebookSaveEvent": {
         "enable": boolean
     },
+    "mentoracademy.org/schemas/events/1.0.0/NotebookCloseEvent": {
+        "enable": boolean
+    },
     "mentoracademy.org/schemas/events/1.0.0/NotebookOpenEvent": {
         "enable": boolean
     },
