@@ -1,12 +1,12 @@
 # ETC JupyterLab Telemetry Library
 
-![Github Actions Status](https://github.com/educational-technology-collective/etc_jupyterlab_telemetry_library/workflows/Build/badge.svg)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/educational-technology-collective/etc_jupyterlab_telemetry_library/main?urlpath=lab)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/educational-technology-collective/etc_jupyterlab_telemetry_library/main?urlpath=lab)
 
 This extension provides a JupyterLab service, identified by the `IETCJupyterLabTelemetryLibraryFactory` token, that can be used to construct a `ETCJupyterLabTelemetryLibrary` instance that exposes Signals associated with user actions in the Notebook.  
 
 The `IETCJupyterLabTelemetryLibraryFactory` Token represents a service that can be consumed by a JupyterLab plugin similar to core services: [Core Tokens](https://jupyterlab.readthedocs.io/en/stable/extension/extension_points.html#core-tokens).  See the [Usage](#usage) section for instructions on how to consume the service.
 
-The following user actions are emited from the `ETCJupyterLabTelemetryLibrary` as a Signal:
+The following user actions are emitted from the `ETCJupyterLabTelemetryLibrary` as a Signal:
 
 * Active Cell Changed
 * Cell Added
@@ -25,7 +25,7 @@ Each event message contains a list of cells relevant to that event.  See the [Re
 
 Each event contains an *incremental* representation of the Notebook.  A Notebook cell will contain just the cell ID if the cell input and output haven't changed since the last event. By providing incremental representations of the Notebook each message will requires less storage.  
 
-This approach allows for messages to be reconstructed at a later time by using the cell contents contained in previously logged messages i.e., the cell IDs are used in order to obtain the contents of the cell from a previously logged cell.
+This approach allows for messages to be reconstructed by using the cell contents contained in previously logged messages i.e., the cell IDs are used in order to obtain the contents of the cell from a previously logged cell.
 
 Please note that in order to reconstruct messages all *enabled* events must be logged.  Please see the [Configuration](#configuration) for details on how toggle events.
 
@@ -304,7 +304,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
 ## Configuration
 
-The extension requires a configuration file that species which events will be emitted.
+The extension requires a configuration file that specifies which events will be emitted.
 
 The configuration file may be placed in any of the Jupyter Server configuration directories.  Execute `jupyter --paths` in order to get a list of configuration directories.  The configuration file must be named `etc_jupyterlab_telemetry_library.json` in order for Jupyter Server to associate it with the extension.
 
