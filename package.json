@@ -1,6 +1,6 @@
 {
   "name": "@educational-technology-collective/etc_jupyterlab_telemetry_library",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A JupyterLab extension.",
   "keywords": [
     "jupyter",
@@ -46,7 +46,7 @@
     "watch:labextension": "jupyter labextension watch ."
   },
   "dependencies": {
-    "@educational-technology-collective/etc_jupyterlab_notebook_state_provider": "^1.0.0",
+    "@educational-technology-collective/etc_jupyterlab_notebook_state_provider": "^2.0.0",
     "@jupyterlab/application": "^3.0.9",
     "@jupyterlab/coreutils": "^5.0.5",
     "@jupyterlab/docregistry": "^3.0.9",
