@@ -4,33 +4,15 @@ import {
 } from "@jupyterlab/notebook";
 
 export interface IConfig {
-    "mentoracademy.org/schemas/events/1.0.0/NotebookSaveEvent": {
-        "enable": boolean
-    },
-    "mentoracademy.org/schemas/events/1.0.0/NotebookCloseEvent": {
-        "enable": boolean
-    },
-    "mentoracademy.org/schemas/events/1.0.0/NotebookOpenEvent": {
-        "enable": boolean
-    },
-    "mentoracademy.org/schemas/events/1.0.0/CellRemoveEvent": {
-        "enable": boolean
-    },
-    "mentoracademy.org/schemas/events/1.0.0/CellAddEvent": {
-        "enable": boolean
-    },
-    "mentoracademy.org/schemas/events/1.0.0/CellExecutionEvent": {
-        "enable": boolean
-    },
-    "mentoracademy.org/schemas/events/1.0.0/NotebookScrollEvent": {
-        "enable": boolean
-    },
-    "mentoracademy.org/schemas/events/1.0.0/ActiveCellChangeEvent": {
-        "enable": boolean
-    },
-    "mentoracademy.org/schemas/events/1.0.0/CellErrorEvent": {
-        "enable": boolean
-    }
+    notebook_save_event: boolean;
+    notebook_close_event: boolean;
+    notebook_open_event: boolean;
+    notebook_cell_remove_event: boolean;
+    notebook_cell_add_event: boolean;
+    notebook_cell_execution_event: boolean;
+    notebook_scroll_event: boolean;
+    notebook_active_cell_change_event: boolean;
+    notebook_cell_error_event: boolean;
   }
 
   export interface ICellMeta {

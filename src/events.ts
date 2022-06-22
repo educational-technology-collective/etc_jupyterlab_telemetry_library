@@ -96,7 +96,7 @@ export class NotebookSaveEvent {
 
         notebookPanel.disposed.connect(this.onDisposed, this);
 
-        if (config['mentoracademy.org/schemas/events/1.0.0/NotebookSaveEvent']['enable']) {
+        if (config.notebook_save_event) {
 
             (async () => {
                 try {
@@ -165,7 +165,7 @@ export class CellExecutionEvent {
 
         notebookPanel.disposed.connect(this.onDisposed, this);
 
-        if (config['mentoracademy.org/schemas/events/1.0.0/CellExecutionEvent']['enable']) {
+        if (config.notebook_cell_execution_event) {
             (async () => {
                 try {
 
@@ -227,7 +227,7 @@ export class NotebookScrollEvent {
 
         notebookPanel.disposed.connect(this.onDisposed, this);
 
-        if (config['mentoracademy.org/schemas/events/1.0.0/NotebookScrollEvent']['enable']) {
+        if (config.notebook_scroll_event) {
 
             (async () => {
                 try {
@@ -306,7 +306,7 @@ export class ActiveCellChangeEvent {
 
         notebookPanel.disposed.connect(this.onDisposed, this);
 
-        if (config['mentoracademy.org/schemas/events/1.0.0/ActiveCellChangeEvent']['enable']) {
+        if (config.notebook_active_cell_change_event) {
             (async () => {
                 try {
 
@@ -362,7 +362,7 @@ export class NotebookOpenEvent {
 
         notebookPanel.disposed.connect(this.onDisposed, this);
 
-        if (config['mentoracademy.org/schemas/events/1.0.0/NotebookOpenEvent']['enable']) {
+        if (config.notebook_open_event) {
             if (!this._once) {
                 (async () => {
                     try {
@@ -415,7 +415,7 @@ export class CellAddEvent {
 
         notebookPanel.disposed.connect(this.onDisposed, this);
 
-        if (config['mentoracademy.org/schemas/events/1.0.0/CellAddEvent']['enable']) {
+        if (config.notebook_cell_add_event) {
             (async () => {
                 try {
 
@@ -467,7 +467,7 @@ export class CellRemoveEvent {
 
         notebookPanel.disposed.connect(this.onDisposed, this);
 
-        if (config['mentoracademy.org/schemas/events/1.0.0/CellRemoveEvent']['enable']) {
+        if (config.notebook_cell_remove_event) {
             (async () => {
                 try {
 
@@ -519,7 +519,7 @@ export class CellErrorEvent {
 
         notebookPanel.disposed.connect(this.onDisposed, this);
 
-        if (config['mentoracademy.org/schemas/events/1.0.0/CellErrorEvent']['enable']) {
+        if (config.notebook_cell_error_event) {
             (async () => {
                 try {
 

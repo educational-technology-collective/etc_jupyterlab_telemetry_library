@@ -112,3 +112,4 @@ dmypy.json
 .DS_Store
 .github
 .vscode
+Untitled*.ipynb

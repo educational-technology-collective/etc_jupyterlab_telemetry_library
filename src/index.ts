@@ -122,11 +122,13 @@ const plugin: JupyterFrontEndPlugin<IETCJupyterLabTelemetryLibraryFactory> = {
     etcJupyterLabNotebookStateProvider: IETCJupyterLabNotebookStateProvider
   ): Promise<IETCJupyterLabTelemetryLibraryFactory> => {
 
-    console.log(`The JupyterLab plugin ${PLUGIN_ID} is activated!`);
+    const VERSION = await requestAPI<string>("version")
 
-    let config = await requestAPI<IConfig>("config");
+    console.log(`${PLUGIN_ID}, ${VERSION}`);
 
-    let etcJupyterLabTelemetryLibraryFactory = new ETCJupyterLabTelemetryLibraryFactory({ config });
+    const CONFIG = await requestAPI<IConfig>("config");
+    
+    let etcJupyterLabTelemetryLibraryFactory = new ETCJupyterLabTelemetryLibraryFactory({ config: CONFIG });
 
     // // TEST
     // class MessageAdapter {
