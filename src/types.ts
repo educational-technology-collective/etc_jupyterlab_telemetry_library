@@ -1,9 +1,8 @@
-import {
-    NotebookPanel,
-  
-} from "@jupyterlab/notebook";
+import { NotebookPanel } from "@jupyterlab/notebook";
 
 export interface IConfig {
+    notebook_clipboard_event: boolean;
+    notebook_visibility_event: boolean;
     notebook_save_event: boolean;
     notebook_close_event: boolean;
     notebook_open_event: boolean;
@@ -23,4 +22,11 @@ export interface IConfig {
 export interface INotebookEventOptions {
     notebookPanel: NotebookPanel;
     config: IConfig;
+}
+
+export interface INotebookEventMessage {
+    eventName: string;
+    cells: Array<ICellMeta>;
+    notebookPanel: NotebookPanel;
+    meta?: any;
 }

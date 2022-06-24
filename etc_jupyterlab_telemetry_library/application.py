@@ -11,6 +11,8 @@ class ETCJupyterLabTelemetryLibraryApp(ExtensionApp):
     load_other_extensions = True
     file_url_prefix = "/render"
 
+    notebook_clipboard_event = Bool(True).tag(config=True)
+    notebook_visibility_event = Bool(True).tag(config=True)
     notebook_save_event = Bool(True).tag(config=True)
     notebook_close_event = Bool(True).tag(config=True)
     notebook_open_event = Bool(True).tag(config=True)

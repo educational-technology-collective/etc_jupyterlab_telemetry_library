@@ -1,3 +1,5 @@
+c.ETCJupyterLabTelemetryLibraryApp.notebook_clipboard_event = True
+c.ETCJupyterLabTelemetryLibraryApp.notebook_visibility_event = True
 c.ETCJupyterLabTelemetryLibraryApp.notebook_save_event = True
 c.ETCJupyterLabTelemetryLibraryApp.notebook_close_event = True
 c.ETCJupyterLabTelemetryLibraryApp.notebook_open_event = True

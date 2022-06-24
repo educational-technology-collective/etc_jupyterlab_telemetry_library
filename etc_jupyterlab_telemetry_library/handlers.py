@@ -1,3 +1,4 @@
+import os
 import tornado
 import json
 from jupyter_server.base.handlers import JupyterHandler
@@ -21,8 +22,13 @@ class RouteHandler(ExtensionHandlerMixin, JupyterHandler):
             
             if resource == 'version':
                 self.finish(json.dumps(_fetchVersion()))
+
             elif resource == 'config':
                 self.finish(json.dumps(self.config))
+
+            elif resource == 'environ':
+                self.finish(json.dumps({k:v for k, v in os.environ.items()}))
+                
             else:
                 self.set_status(404)
 

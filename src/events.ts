@@ -26,64 +26,271 @@ import {
 
 import { IMessage, MessageType } from "@jupyterlab/services/lib/kernel/messages";
 
-import { ICellMeta, INotebookEventOptions } from './types';
+import { ICellMeta, INotebookEventMessage, INotebookEventOptions } from './types';
+import { requestAPI } from "./handler";
 
-// export class NotebookCloseEvent {
 
-//     private _notebookClosed: Signal<NotebookCloseEvent, any> = new Signal(this);
-//     // private _notebookPanel: NotebookPanel;
-//     // private _notebook: Notebook;
+export class NotebookClipboardEvent {
 
-//     constructor({ notebookPanel, config }: INotebookEventOptions) {
+    private _notebookClipboardChanged: Signal<NotebookClipboardEvent, INotebookEventMessage> = new Signal(this);
+    private _notebookPanel: NotebookPanel;
+    private _notebook: Notebook;
 
-//         // this._notebookPanel = notebookPanel;
-//         // this._notebook = notebookPanel.content;
+    constructor({ notebookPanel, config }: INotebookEventOptions) {
 
-//         if (config['mentoracademy.org/schemas/events/1.0.0/NotebookCloseEvent']['enable']) {
-//             (async () => {
-//                 try {
+        this._notebookPanel = notebookPanel;
+        this._notebook = notebookPanel.content;
 
-//                     await notebookPanel.revealed;
+        this.handleCopy = this.handleCopy.bind(this);
+        this.handleCut = this.handleCut.bind(this);
+        this.handlePaste = this.handlePaste.bind(this);
 
-//                     console.log(notebookPanel.id);
+        notebookPanel.disposed.connect(this.onDisposed, this);
 
-//                     let node = document.querySelector(`[data-id="${notebookPanel.id}"] .lm-TabBar-tabCloseIcon`);
+        if (config.notebook_clipboard_event) {
 
-//                     node?.addEventListener('click', () => {
-//                         console.log(notebookPanel.content.widgets);
-//                     })
-//                 }
-//                 catch (e) {
-//                     console.error(e);
-//                 }
-//             })();
-//         }
-//     }
+            this._notebookPanel.node.addEventListener('copy', this.handleCopy, false);
+            this._notebookPanel.node.addEventListener('cut', this.handleCut, false);
+            this._notebookPanel.node.addEventListener('paste', this.handlePaste, false);
+        }
 
-//     onDisposed() {
+    }
 
-//         Signal.disconnectAll(this);
-//     }
+    private onDisposed() {
+        Signal.disconnectAll(this);
+        this._notebookPanel.node.removeEventListener('copy', this.handleCopy, false);
+        this._notebookPanel.node.removeEventListener('cut', this.handleCut, false);
+        this._notebookPanel.node.removeEventListener('paste', this.handlePaste, false);
+    }
 
-//     // private onNotebookDisposed(): void {
+    private handleCopy(event: ClipboardEvent) {
 
-//     //     console.log('private onNotebookDisposed(): void {');
+        let text = document.getSelection()?.toString();
 
-//     //     let cells = this._notebook.widgets.map((cell: Cell<ICellModel>, index: number) =>
-//     //         ({ id: cell.model.id, index: index })
-//     //     );
+        let cell = this._notebookPanel.content.activeCell;
 
-//     //     this._notebookClosed.emit({
-//     //         event_name: "close_notebook",
-//     //         cells: cells,
-//     //         notebookPanel: this._notebookPanel
-//     //     });
-//     // }
+        let cells = [
+            {
+                id: cell?.model.id,
+                index: this._notebook.widgets.findIndex((value: Cell<ICellModel>) => value == cell)
+            }
+        ];
 
-//     get notebookClosed(): ISignal<NotebookCloseEvent, any> {
-//         return this._notebookClosed
-//     }
-// }
+        this._notebookClipboardChanged.emit({
+            eventName: 'clipboard_copy',
+            cells: cells,
+            notebookPanel: this._notebookPanel,
+            meta: text
+        });
+    }
+
+    private handleCut(event: ClipboardEvent) {
+
+        let text = document.getSelection()?.toString();
+
+        let cell = this._notebookPanel.content.activeCell;
+
+        let cells = [
+            {
+                id: cell?.model.id,
+                index: this._notebook.widgets.findIndex((value: Cell<ICellModel>) => value == cell)
+            }
+        ];
+
+        this._notebookClipboardChanged.emit({
+            eventName: 'clipboard_cut',
+            cells: cells,
+            notebookPanel: this._notebookPanel,
+            meta: text
+        });
+    }
+
+    private handlePaste(event: ClipboardEvent) {
+
+        let text = (event.clipboardData || (window as any).clipboardData).getData('text');
+
+        let cell = this._notebookPanel.content.activeCell;
+
+        let cells = [
+            {
+                id: cell?.model.id,
+                index: this._notebook.widgets.findIndex((value: Cell<ICellModel>) => value == cell)
+            }
+        ];
+
+        this._notebookClipboardChanged.emit({
+            eventName: 'clipboard_paste',
+            cells: cells,
+            notebookPanel: this._notebookPanel,
+            meta: text
+        });
+    }
+
+    get notebookClipboardChanged(): ISignal<NotebookClipboardEvent, INotebookEventMessage> {
+        return this._notebookClipboardChanged
+    }
+}
+
+export class NotebookVisibilityEvent {
+
+    private _notebookVisibilityChanged: Signal<NotebookVisibilityEvent, INotebookEventMessage> = new Signal(this);
+    private _notebookPanel: NotebookPanel;
+    private _notebook: Notebook;
+    private _hiddenProperty: string = 'hidden';
+    private _visibilityChange: string = 'visibilitychange';
+    private _visibility: boolean = false;
+
+    constructor({ notebookPanel, config }: INotebookEventOptions) {
+
+        this._notebookPanel = notebookPanel;
+        let notebook = this._notebook = notebookPanel.content;
+        this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
+        this.handleFocus = this.handleFocus.bind(this);
+        this.handleBlur = this.handleBlur.bind(this);
+
+        notebookPanel.disposed.connect(this.onDisposed, this);
+
+        if (config.notebook_visibility_event) {
+
+            (async () => {
+
+                try {
+
+                    await notebookPanel.revealed;
+
+                    if (typeof document.hidden !== 'undefined') {
+                        this._hiddenProperty = 'hidden';
+                        this._visibilityChange = 'visibilitychange';
+                    } else if (typeof (document as any).msHidden !== 'undefined') {
+                        this._hiddenProperty = 'msHidden';
+                        this._visibilityChange = 'msvisibilitychange';
+                    } else if (typeof (document as any).webkitHidden !== 'undefined') {
+                        this._hiddenProperty = 'webkitHidden';
+                        this._visibilityChange = 'webkitvisibilitychange';
+                    }
+
+                    document.addEventListener(this._visibilityChange, this.handleVisibilityChange, false);
+                    notebook.node.addEventListener('blur', this.handleBlur, true);
+                    notebook.node.addEventListener('focus', this.handleFocus, true);
+
+                    window.addEventListener('blur', this.handleBlur, true);
+                    window.addEventListener('focus', this.handleFocus, true);
+
+                    this.visibility = notebookPanel.content.isVisible;
+                }
+                catch (e) {
+                    console.error(e);
+                }
+            })();
+        }
+    }
+
+    private onDisposed() {
+        Signal.disconnectAll(this);
+        document.removeEventListener(this._visibilityChange, this.handleVisibilityChange, false)
+        this._notebook.node.removeEventListener('blur', this.handleBlur, true);
+        this._notebook.node.removeEventListener('focus', this.handleFocus, true);
+        window.removeEventListener('blur', this.handleBlur, true);
+        window.removeEventListener('focus', this.handleFocus, true);
+    }
+
+    private handleVisibilityChange(event: Event): void {
+
+        this.visibility = !(document as any)[this._hiddenProperty] && this._notebook.isVisible;
+    }
+
+    private handleBlur(event: Event) {
+
+        if (event.currentTarget === window && event.target === window) {
+
+            this.visibility = false;
+        }
+        else if (event.currentTarget === this._notebook.node) {
+
+            this.visibility = this._notebook.isVisible;
+        }
+    }
+
+    private handleFocus(event: Event) {
+
+        this.visibility = this._notebook.isVisible;
+    }
+
+    set visibility(visibility: boolean) {
+
+        if (this._visibility != visibility) {
+
+            this._visibility = visibility;
+
+            let cells = getVisibleCells(this._notebookPanel);
+
+            let eventName = `notebook_${this._visibility ? 'visible' : 'hidden'}`;
+
+            this._notebookVisibilityChanged.emit({
+                eventName: eventName,
+                cells: cells,
+                notebookPanel: this._notebookPanel
+            });
+        }
+    }
+
+    get notebookVisibilityChanged(): ISignal<NotebookVisibilityEvent, INotebookEventMessage> {
+        return this._notebookVisibilityChanged
+    }
+}
+
+
+export class NotebookCloseEvent {
+
+    private _notebookClosed: Signal<NotebookCloseEvent, any> = new Signal(this);
+    private _notebookPanel: NotebookPanel;
+    private _notebook: Notebook;
+
+    constructor({ notebookPanel, config }: INotebookEventOptions) {
+
+        this._notebookPanel = notebookPanel;
+        this._notebook = notebookPanel.content;
+
+        if (config.notebook_close_event) {
+
+            (async () => {
+                try {
+
+                    await notebookPanel.revealed;
+
+                    notebookPanel.disposed.connect(this.onNotebookDisposed, this);
+
+                    notebookPanel.disposed.connect(this.onDisposed, this);
+                }
+                catch (e) {
+                    console.error(e);
+                }
+            })();
+        }
+    }
+
+    private onDisposed() {
+
+        Signal.disconnectAll(this);
+    }
+
+    private onNotebookDisposed(): void {
+
+        let cells = this._notebook.widgets.map((cell: Cell<ICellModel>, index: number) =>
+            ({ id: cell.model.id, index: index })
+        );
+
+        this._notebookClosed.emit({
+            eventName: "close_notebook",
+            cells: cells,
+            notebookPanel: this._notebookPanel
+        });
+    }
+
+    get notebookClosed(): ISignal<NotebookCloseEvent, any> {
+        return this._notebookClosed
+    }
+}
 
 export class NotebookSaveEvent {
 
@@ -112,7 +319,7 @@ export class NotebookSaveEvent {
         }
     }
 
-    onDisposed() {
+    private onDisposed() {
         Signal.disconnectAll(this);
     }
 
@@ -140,7 +347,7 @@ export class NotebookSaveEvent {
             }
 
             this._notebookSaved.emit({
-                event_name: "save_notebook",
+                eventName: "save_notebook",
                 cells: cells,
                 notebookPanel: this._notebookPanel
             });
@@ -180,7 +387,7 @@ export class CellExecutionEvent {
         }
     }
 
-    onDisposed() {
+    private onDisposed() {
 
         Signal.disconnectAll(this);
     }
@@ -197,7 +404,7 @@ export class CellExecutionEvent {
             ]
 
             this._cellExecuted.emit({
-                event_name: "cell_executed",
+                eventName: "cell_executed",
                 cells: cells,
                 notebookPanel: this._notebookPanel
             });
@@ -214,13 +421,11 @@ export class NotebookScrollEvent {
 
     private _notebookScrolled: Signal<NotebookScrollEvent, any> = new Signal(this);
     private _notebookPanel: NotebookPanel;
-    private _notebook: Notebook;
     private _timeout: number;
 
     constructor({ notebookPanel, config }: INotebookEventOptions) {
 
         this._notebookPanel = notebookPanel;
-        this._notebook = notebookPanel.content;
         this._timeout = 0;
 
         this.onScrolled = this.onScrolled.bind(this);
@@ -243,7 +448,7 @@ export class NotebookScrollEvent {
         }
     }
 
-    onDisposed() {
+    private onDisposed() {
 
         Signal.disconnectAll(this);
     }
@@ -256,31 +461,10 @@ export class NotebookScrollEvent {
 
         this._timeout = setTimeout(() => {
 
-            let cells: Array<ICellMeta> = [];
-            let cell: Cell<ICellModel>;
-            let index: number;
-            let id: string;
-
-            for (index = 0; index < this._notebook.widgets.length; index++) {
-
-                cell = this._notebook.widgets[index];
-
-                let cellTop = cell.node.offsetTop;
-                let cellBottom = cell.node.offsetTop + cell.node.offsetHeight;
-                let viewTop = this._notebook.node.scrollTop;
-                let viewBottom = this._notebook.node.scrollTop + this._notebook.node.clientHeight;
-
-                if (cellTop > viewBottom || cellBottom < viewTop) {
-                    continue;
-                }
-
-                id = cell.model.id;
-
-                cells.push({ id, index });
-            }
+            let cells = getVisibleCells(this._notebookPanel);
 
             this._notebookScrolled.emit({
-                event_name: "scroll",
+                eventName: "scroll",
                 cells: cells,
                 notebookPanel: this._notebookPanel
             });
@@ -307,6 +491,7 @@ export class ActiveCellChangeEvent {
         notebookPanel.disposed.connect(this.onDisposed, this);
 
         if (config.notebook_active_cell_change_event) {
+
             (async () => {
                 try {
 
@@ -322,24 +507,28 @@ export class ActiveCellChangeEvent {
         }
     }
 
-    onDisposed() {
+    private onDisposed() {
         Signal.disconnectAll(this);
     }
 
     private onActiveCellChanged(send: Notebook, args: Cell<ICellModel>): void {
 
-        let cells = [
-            {
-                id: args.model.id,
-                index: this._notebook.widgets.findIndex((value: Cell<ICellModel>) => value == args)
-            }
-        ];
+        if (this._notebook.widgets.length > 1) {
+            //  More than 1 cell is needed in order for this event to happen; hence, check the number of cells.
 
-        this._activeCellChanged.emit({
-            event_name: "active_cell_changed",
-            cells: cells,
-            notebookPanel: this._notebookPanel
-        });
+            let cells = [
+                {
+                    id: args.model.id,
+                    index: this._notebook.widgets.findIndex((value: Cell<ICellModel>) => value == args)
+                }
+            ];
+
+            this._activeCellChanged.emit({
+                eventName: "active_cell_changed",
+                cells: cells,
+                notebookPanel: this._notebookPanel
+            });
+        }
     }
 
     get activeCellChanged(): ISignal<ActiveCellChangeEvent, any> {
@@ -369,7 +558,7 @@ export class NotebookOpenEvent {
 
                         await notebookPanel.revealed;
 
-                        this.onNotebookOpened();
+                        await this.emitNotebookOpened();
                     }
                     catch (e) {
                         console.error(e);
@@ -379,21 +568,23 @@ export class NotebookOpenEvent {
         }
     }
 
-    onDisposed() {
+    private onDisposed() {
 
         Signal.disconnectAll(this);
     }
 
-    private onNotebookOpened(): void {
+    private async emitNotebookOpened() {
+
 
         let cells = this._notebook.widgets.map((cell: Cell<ICellModel>, index: number) =>
             ({ id: cell.model.id, index: index })
         );
 
         this._notebookOpened.emit({
-            event_name: "open_notebook",
+            eventName: "open_notebook",
             cells: cells,
-            notebookPanel: this._notebookPanel
+            notebookPanel: this._notebookPanel,
+            meta: await requestAPI<any>('environ')
         });
 
         this._once = true;
@@ -430,7 +621,7 @@ export class CellAddEvent {
         }
     }
 
-    onDisposed() {
+    private onDisposed() {
 
         Signal.disconnectAll(this);
     }
@@ -444,7 +635,7 @@ export class CellAddEvent {
             let cells = [{ id: args.newValues[0].id, index: args.newIndex }];
 
             this._cellAdded.emit({
-                event_name: "add_cell",
+                eventName: "add_cell",
                 cells: cells,
                 notebookPanel: this._notebookPanel
             });
@@ -482,7 +673,7 @@ export class CellRemoveEvent {
         }
     }
 
-    onDisposed() {
+    private onDisposed() {
 
         Signal.disconnectAll(this);
     }
@@ -496,7 +687,7 @@ export class CellRemoveEvent {
             let cells = [{ id: args.oldValues[0].id, index: args.oldIndex }];
 
             this._cellRemoved.emit({
-                event_name: "remove_cell",
+                eventName: "remove_cell",
                 cells: cells,
                 notebookPanel: this._notebookPanel
             });
@@ -534,7 +725,7 @@ export class CellErrorEvent {
         }
     }
 
-    onDisposed() {
+    private onDisposed() {
 
         Signal.disconnectAll(this);
     }
@@ -551,7 +742,7 @@ export class CellErrorEvent {
             ]
 
             this._cellErrored.emit({
-                event_name: "cell_errored",
+                eventName: "cell_errored",
                 cells: cells,
                 notebookPanel: this._notebookPanel
             });
@@ -561,4 +752,34 @@ export class CellErrorEvent {
     get cellErrored(): ISignal<CellErrorEvent, any> {
         return this._cellErrored
     }
+}
+
+
+function getVisibleCells(notebookPanel: NotebookPanel): Array<ICellMeta> {
+
+    let cells: Array<ICellMeta> = [];
+    let cell: Cell<ICellModel>;
+    let index: number;
+    let id: string;
+    let notebook = notebookPanel.content;
+
+    for (index = 0; index < notebook.widgets.length; index++) {
+
+        cell = notebook.widgets[index];
+
+        let cellTop = cell.node.offsetTop;
+        let cellBottom = cell.node.offsetTop + cell.node.offsetHeight;
+        let viewTop = notebook.node.scrollTop;
+        let viewBottom = notebook.node.scrollTop + notebook.node.clientHeight;
+
+        if (cellTop > viewBottom || cellBottom < viewTop) {
+            continue;
+        }
+
+        id = cell.model.id;
+
+        cells.push({ id, index });
+    }
+
+    return cells;
 }
