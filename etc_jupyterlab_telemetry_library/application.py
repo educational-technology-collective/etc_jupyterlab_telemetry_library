@@ -1,7 +1,6 @@
 from .handlers import RouteHandler
 from jupyter_server.extension.application import ExtensionApp
 from traitlets import Bool
-import json
 import pprint
 
 class ETCJupyterLabTelemetryLibraryApp(ExtensionApp):

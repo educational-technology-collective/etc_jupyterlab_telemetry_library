@@ -26,13 +26,137 @@ import {
 
 import { IMessage, MessageType } from "@jupyterlab/services/lib/kernel/messages";
 
-import { ICellMeta, INotebookEventMessage, INotebookEventOptions } from './types';
+import { ICellMeta, IConfig, INotebookEventMessage, INotebookEventOptions } from './types';
+
 import { requestAPI } from "./handler";
+
+export class ETCJupyterLabTelemetryLibrary {
+
+    public notebookClipboardEvent: NotebookClipboardEvent;
+    public notebookVisibilityEvent: NotebookVisibilityEvent;
+    public notebookCloseEvent: NotebookCloseEvent;
+    public notebookOpenEvent: NotebookOpenEvent;
+    public notebookSaveEvent: NotebookSaveEvent;
+    public cellExecutionEvent: CellExecutionEvent;
+    public cellErrorEvent: CellErrorEvent;
+    public notebookScrollEvent: NotebookScrollEvent;
+    public activeCellChangeEvent: ActiveCellChangeEvent;
+    public cellAddEvent: CellAddEvent;
+    public cellRemoveEvent: CellRemoveEvent;
+
+    constructor({
+        notebookPanel,
+        config
+    }: {
+        notebookPanel: NotebookPanel,
+        config: IConfig
+    }) {
+
+        this.notebookClipboardEvent = new NotebookClipboardEvent({
+            notebookPanel: notebookPanel,
+            config: config
+        });
+
+        this.notebookVisibilityEvent = new NotebookVisibilityEvent({
+            notebookPanel: notebookPanel,
+            config: config
+        });
+
+        this.notebookCloseEvent = new NotebookCloseEvent({
+            notebookPanel: notebookPanel,
+            config: config
+        });
+
+        this.notebookOpenEvent = new NotebookOpenEvent({
+            notebookPanel: notebookPanel,
+            config: config
+        });
+
+        this.notebookSaveEvent = new NotebookSaveEvent({
+            notebookPanel: notebookPanel,
+            config: config
+        });
+
+        this.cellExecutionEvent = new CellExecutionEvent({
+            notebookPanel: notebookPanel,
+            config: config
+        });
+
+        this.cellErrorEvent = new CellErrorEvent({
+            notebookPanel: notebookPanel,
+            config: config
+        });
+
+        this.notebookScrollEvent = new NotebookScrollEvent({
+            notebookPanel: notebookPanel,
+            config: config
+        });
+
+        this.activeCellChangeEvent = new ActiveCellChangeEvent({
+            notebookPanel: notebookPanel,
+            config: config
+        });
+
+        this.cellAddEvent = new CellAddEvent({
+            notebookPanel: notebookPanel,
+            config: config
+        });
+
+        this.cellRemoveEvent = new CellRemoveEvent({
+            notebookPanel: notebookPanel,
+            config: config
+        });
+    }
+}
+
+
+
+class NotebookEvent {
+
+    protected _notebookPanel: NotebookPanel;
+
+    constructor(notebookPanel: NotebookPanel) {
+        this._notebookPanel = notebookPanel;
+    }
+
+    protected getVisibleCells(): Array<ICellMeta> {
+
+        let cells: Array<ICellMeta> = [];
+        let cell: Cell<ICellModel>;
+        let index: number;
+        let id: string;
+        let notebook = this._notebookPanel.content;
+
+        for (index = 0; index < notebook.widgets.length; index++) {
+
+            cell = notebook.widgets[index];
+
+            let cellTop = cell.node.offsetTop;
+            let cellBottom = cell.node.offsetTop + cell.node.offsetHeight;
+            let viewTop = notebook.node.scrollTop;
+            let viewBottom = notebook.node.scrollTop + notebook.node.clientHeight;
+
+            if (cellTop > viewBottom || cellBottom < viewTop) {
+                continue;
+            }
+
+            id = cell.model.id;
+
+            cells.push({ id, index });
+        }
+
+        return cells;
+    }
+
+}
 
 
 export class NotebookClipboardEvent {
 
-    private _notebookClipboardChanged: Signal<NotebookClipboardEvent, INotebookEventMessage> = new Signal(this);
+    private _notebookClipboardCopied: Signal<NotebookClipboardEvent, INotebookEventMessage> = new Signal(this);
+    private _notebookClipboardCut: Signal<NotebookClipboardEvent, INotebookEventMessage> = new Signal(this);
+    private _notebookClipboardPasted: Signal<NotebookClipboardEvent, INotebookEventMessage> = new Signal(this);
+
     private _notebookPanel: NotebookPanel;
     private _notebook: Notebook;
 
@@ -76,7 +200,7 @@ export class NotebookClipboardEvent {
             }
         ];
 
-        this._notebookClipboardChanged.emit({
+        this._notebookClipboardCopied.emit({
             eventName: 'clipboard_copy',
             cells: cells,
             notebookPanel: this._notebookPanel,
@@ -97,7 +221,7 @@ export class NotebookClipboardEvent {
             }
         ];
 
-        this._notebookClipboardChanged.emit({
+        this._notebookClipboardCut.emit({
             eventName: 'clipboard_cut',
             cells: cells,
             notebookPanel: this._notebookPanel,
@@ -118,7 +242,7 @@ export class NotebookClipboardEvent {
             }
         ];
 
-        this._notebookClipboardChanged.emit({
+        this._notebookClipboardPasted.emit({
             eventName: 'clipboard_paste',
             cells: cells,
             notebookPanel: this._notebookPanel,
@@ -126,21 +250,28 @@ export class NotebookClipboardEvent {
         });
     }
 
-    get notebookClipboardChanged(): ISignal<NotebookClipboardEvent, INotebookEventMessage> {
-        return this._notebookClipboardChanged
+    get notebookClipboardCopied(): ISignal<NotebookClipboardEvent, INotebookEventMessage> {
+        return this._notebookClipboardCopied
+    }
+    get notebookClipboardCut(): ISignal<NotebookClipboardEvent, INotebookEventMessage> {
+        return this._notebookClipboardCut
+    }
+    get notebookClipboardPasted(): ISignal<NotebookClipboardEvent, INotebookEventMessage> {
+        return this._notebookClipboardPasted
     }
 }
 
-export class NotebookVisibilityEvent {
+export class NotebookVisibilityEvent extends NotebookEvent {
 
-    private _notebookVisibilityChanged: Signal<NotebookVisibilityEvent, INotebookEventMessage> = new Signal(this);
-    private _notebookPanel: NotebookPanel;
+    private _notebookVisible: Signal<NotebookVisibilityEvent, INotebookEventMessage> = new Signal(this);
+    private _notebookHidden: Signal<NotebookVisibilityEvent, INotebookEventMessage> = new Signal(this);
     private _notebook: Notebook;
     private _hiddenProperty: string = 'hidden';
     private _visibilityChange: string = 'visibilitychange';
     private _visibility: boolean = false;
 
     constructor({ notebookPanel, config }: INotebookEventOptions) {
+        super(notebookPanel);
 
         this._notebookPanel = notebookPanel;
         let notebook = this._notebook = notebookPanel.content;
@@ -222,23 +353,35 @@ export class NotebookVisibilityEvent {
 
             this._visibility = visibility;
 
-            let cells = getVisibleCells(this._notebookPanel);
+            let cells = this.getVisibleCells();
 
-            let eventName = `notebook_${this._visibility ? 'visible' : 'hidden'}`;
+            if (this._visibility === true) {
 
-            this._notebookVisibilityChanged.emit({
-                eventName: eventName,
-                cells: cells,
-                notebookPanel: this._notebookPanel
-            });
+                this._notebookVisible.emit({
+                    eventName: 'notebook_visible',
+                    cells: cells,
+                    notebookPanel: this._notebookPanel
+                });
+            }
+            else if (this._visibility === false) {
+
+                this._notebookHidden.emit({
+                    eventName: 'notebook_hidden',
+                    cells: cells,
+                    notebookPanel: this._notebookPanel
+                });
+            }
         }
     }
 
-    get notebookVisibilityChanged(): ISignal<NotebookVisibilityEvent, INotebookEventMessage> {
-        return this._notebookVisibilityChanged
+    get notebookVisible(): ISignal<NotebookVisibilityEvent, INotebookEventMessage> {
+        return this._notebookVisible
+    }
+
+    get notebookHidden(): ISignal<NotebookVisibilityEvent, INotebookEventMessage> {
+        return this._notebookHidden
     }
 }
-
 
 export class NotebookCloseEvent {
 
@@ -417,13 +560,13 @@ export class CellExecutionEvent {
 }
 
 
-export class NotebookScrollEvent {
+export class NotebookScrollEvent extends NotebookEvent {
 
     private _notebookScrolled: Signal<NotebookScrollEvent, any> = new Signal(this);
-    private _notebookPanel: NotebookPanel;
     private _timeout: number;
 
     constructor({ notebookPanel, config }: INotebookEventOptions) {
+        super(notebookPanel);
 
         this._notebookPanel = notebookPanel;
         this._timeout = 0;
@@ -461,7 +604,7 @@ export class NotebookScrollEvent {
 
         this._timeout = setTimeout(() => {
 
-            let cells = getVisibleCells(this._notebookPanel);
+            let cells = this.getVisibleCells();
 
             this._notebookScrolled.emit({
                 eventName: "scroll",
@@ -752,34 +895,4 @@ export class CellErrorEvent {
     get cellErrored(): ISignal<CellErrorEvent, any> {
         return this._cellErrored
     }
-}
-
-
-function getVisibleCells(notebookPanel: NotebookPanel): Array<ICellMeta> {
-
-    let cells: Array<ICellMeta> = [];
-    let cell: Cell<ICellModel>;
-    let index: number;
-    let id: string;
-    let notebook = notebookPanel.content;
-
-    for (index = 0; index < notebook.widgets.length; index++) {
-
-        cell = notebook.widgets[index];
-
-        let cellTop = cell.node.offsetTop;
-        let cellBottom = cell.node.offsetTop + cell.node.offsetHeight;
-        let viewTop = notebook.node.scrollTop;
-        let viewBottom = notebook.node.scrollTop + notebook.node.clientHeight;
-
-        if (cellTop > viewBottom || cellBottom < viewTop) {
-            continue;
-        }
-
-        id = cell.model.id;
-
-        cells.push({ id, index });
-    }
-
-    return cells;
 }
