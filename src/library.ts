@@ -3,7 +3,7 @@ import {
     INotebookModel,
     Notebook,
     NotebookActions
-} from "@jupyterlab/notebook";
+} from '@jupyterlab/notebook';
 
 import {
     ISignal,
@@ -13,22 +13,22 @@ import {
 import {
     Cell,
     ICellModel
-} from "@jupyterlab/cells";
+} from '@jupyterlab/cells';
 
 import {
     IObservableList,
     IObservableUndoableList
-} from "@jupyterlab/observables";
+} from '@jupyterlab/observables';
 
 import {
     DocumentRegistry
-} from "@jupyterlab/docregistry";
+} from '@jupyterlab/docregistry';
 
-import { IMessage, MessageType } from "@jupyterlab/services/lib/kernel/messages";
+import { IMessage, MessageType } from '@jupyterlab/services/lib/kernel/messages';
 
 import { ICellMeta, IConfig, INotebookEventMessage, INotebookEventOptions } from './types';
 
-import { requestAPI } from "./handler";
+import { requestAPI } from './handler';
 
 export class ETCJupyterLabTelemetryLibrary {
 
@@ -108,8 +108,6 @@ export class ETCJupyterLabTelemetryLibrary {
         });
     }
 }
-
-
 
 class NotebookEvent {
 
@@ -385,7 +383,7 @@ export class NotebookVisibilityEvent extends NotebookEvent {
 
 export class NotebookCloseEvent {
 
-    private _notebookClosed: Signal<NotebookCloseEvent, any> = new Signal(this);
+    private _notebookClosed: Signal<NotebookCloseEvent, INotebookEventMessage> = new Signal(this);
     private _notebookPanel: NotebookPanel;
     private _notebook: Notebook;
 
@@ -424,7 +422,7 @@ export class NotebookCloseEvent {
         );
 
         this._notebookClosed.emit({
-            eventName: "close_notebook",
+            eventName: 'close_notebook',
             cells: cells,
             notebookPanel: this._notebookPanel
         });
@@ -437,7 +435,7 @@ export class NotebookCloseEvent {
 
 export class NotebookSaveEvent {
 
-    private _notebookSaved: Signal<NotebookSaveEvent, any> = new Signal(this);
+    private _notebookSaved: Signal<NotebookSaveEvent, INotebookEventMessage> = new Signal(this);
     private _notebookPanel: NotebookPanel;
 
     constructor({ notebookPanel, config }: INotebookEventOptions) {
@@ -475,7 +473,7 @@ export class NotebookSaveEvent {
         let cells: Array<ICellMeta>;
         let index: number;
 
-        if (saveState.match("completed")) {
+        if (saveState.match('completed')) {
 
             cells = [];
 
@@ -490,21 +488,21 @@ export class NotebookSaveEvent {
             }
 
             this._notebookSaved.emit({
-                eventName: "save_notebook",
+                eventName: 'save_notebook',
                 cells: cells,
                 notebookPanel: this._notebookPanel
             });
         }
     }
 
-    get notebookSaved(): ISignal<NotebookSaveEvent, any> {
+    get notebookSaved(): ISignal<NotebookSaveEvent, INotebookEventMessage> {
         return this._notebookSaved
     }
 }
 
 export class CellExecutionEvent {
 
-    private _cellExecuted: Signal<CellExecutionEvent, any> = new Signal(this);
+    private _cellExecuted: Signal<CellExecutionEvent, INotebookEventMessage> = new Signal(this);
     private _notebookPanel: NotebookPanel;
     private _notebook: Notebook;
 
@@ -547,7 +545,7 @@ export class CellExecutionEvent {
             ]
 
             this._cellExecuted.emit({
-                eventName: "cell_executed",
+                eventName: 'cell_executed',
                 cells: cells,
                 notebookPanel: this._notebookPanel
             });
@@ -562,7 +560,7 @@ export class CellExecutionEvent {
 
 export class NotebookScrollEvent extends NotebookEvent {
 
-    private _notebookScrolled: Signal<NotebookScrollEvent, any> = new Signal(this);
+    private _notebookScrolled: Signal<NotebookScrollEvent, INotebookEventMessage> = new Signal(this);
     private _timeout: number;
 
     constructor({ notebookPanel, config }: INotebookEventOptions) {
@@ -582,7 +580,7 @@ export class NotebookScrollEvent extends NotebookEvent {
 
                     await notebookPanel.revealed;
 
-                    notebookPanel.content.node.addEventListener("scroll", this.onScrolled, false);
+                    notebookPanel.content.node.addEventListener('scroll', this.onScrolled, false);
                 }
                 catch (e) {
                     console.error(e);
@@ -607,7 +605,7 @@ export class NotebookScrollEvent extends NotebookEvent {
             let cells = this.getVisibleCells();
 
             this._notebookScrolled.emit({
-                eventName: "scroll",
+                eventName: 'scroll',
                 cells: cells,
                 notebookPanel: this._notebookPanel
             });
@@ -622,7 +620,7 @@ export class NotebookScrollEvent extends NotebookEvent {
 
 export class ActiveCellChangeEvent {
 
-    private _activeCellChanged: Signal<ActiveCellChangeEvent, any> = new Signal(this);
+    private _activeCellChanged: Signal<ActiveCellChangeEvent, INotebookEventMessage> = new Signal(this);
     private _notebookPanel: NotebookPanel;
     private _notebook: Notebook;
 
@@ -667,7 +665,7 @@ export class ActiveCellChangeEvent {
             ];
 
             this._activeCellChanged.emit({
-                eventName: "active_cell_changed",
+                eventName: 'active_cell_changed',
                 cells: cells,
                 notebookPanel: this._notebookPanel
             });
@@ -681,7 +679,7 @@ export class ActiveCellChangeEvent {
 
 export class NotebookOpenEvent {
 
-    private _notebookOpened: Signal<NotebookOpenEvent, any> = new Signal(this);
+    private _notebookOpened: Signal<NotebookOpenEvent, INotebookEventMessage> = new Signal(this);
     private _notebookPanel: NotebookPanel;
     private _notebook: Notebook;
 
@@ -724,7 +722,7 @@ export class NotebookOpenEvent {
         );
 
         this._notebookOpened.emit({
-            eventName: "open_notebook",
+            eventName: 'open_notebook',
             cells: cells,
             notebookPanel: this._notebookPanel,
             meta: await requestAPI<any>('environ')
@@ -740,7 +738,7 @@ export class NotebookOpenEvent {
 
 export class CellAddEvent {
 
-    private _cellAdded: Signal<CellAddEvent, any> = new Signal(this);
+    private _cellAdded: Signal<CellAddEvent, INotebookEventMessage> = new Signal(this);
     private _notebookPanel: NotebookPanel;
 
     constructor({ notebookPanel, config }: INotebookEventOptions) {
@@ -773,12 +771,12 @@ export class CellAddEvent {
         sender: IObservableUndoableList<ICellModel>,
         args: IObservableList.IChangedArgs<ICellModel>) {
 
-        if (args.type == "add") {
+        if (args.type == 'add') {
 
             let cells = [{ id: args.newValues[0].id, index: args.newIndex }];
 
             this._cellAdded.emit({
-                eventName: "add_cell",
+                eventName: 'add_cell',
                 cells: cells,
                 notebookPanel: this._notebookPanel
             });
@@ -792,7 +790,7 @@ export class CellAddEvent {
 
 export class CellRemoveEvent {
 
-    private _cellRemoved: Signal<CellRemoveEvent, any> = new Signal(this);
+    private _cellRemoved: Signal<CellRemoveEvent, INotebookEventMessage> = new Signal(this);
     private _notebookPanel: NotebookPanel;
 
     constructor({ notebookPanel, config }: INotebookEventOptions) {
@@ -825,12 +823,12 @@ export class CellRemoveEvent {
         sender: IObservableUndoableList<ICellModel>,
         args: IObservableList.IChangedArgs<ICellModel>) {
 
-        if (args.type == "remove") {
+        if (args.type == 'remove') {
 
             let cells = [{ id: args.oldValues[0].id, index: args.oldIndex }];
 
             this._cellRemoved.emit({
-                eventName: "remove_cell",
+                eventName: 'remove_cell',
                 cells: cells,
                 notebookPanel: this._notebookPanel
             });
@@ -844,7 +842,7 @@ export class CellRemoveEvent {
 
 export class CellErrorEvent {
 
-    private _cellErrored: Signal<CellErrorEvent, any> = new Signal(this);
+    private _cellErrored: Signal<CellErrorEvent, INotebookEventMessage> = new Signal(this);
     private _notebookPanel: NotebookPanel;
 
     constructor({ notebookPanel, config }: INotebookEventOptions) {
@@ -875,7 +873,7 @@ export class CellErrorEvent {
 
     private onCellErrored(_: any, args: IMessage<MessageType>): void {
 
-        if (args.header.msg_type == "error") {
+        if (args.header.msg_type == 'error') {
 
             let cells = [
                 {
@@ -885,7 +883,7 @@ export class CellErrorEvent {
             ]
 
             this._cellErrored.emit({
-                eventName: "cell_errored",
+                eventName: 'cell_errored',
                 cells: cells,
                 notebookPanel: this._notebookPanel
             });
