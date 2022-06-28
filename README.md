@@ -2,347 +2,184 @@
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/educational-technology-collective/etc_jupyterlab_telemetry_library/main?urlpath=lab)
 
-This extension provides a JupyterLab service, identified by the `IETCJupyterLabTelemetryLibraryFactory` token, that can be used to construct a `ETCJupyterLabTelemetryLibrary` instance that exposes Signals associated with user actions in the Notebook.  
+This extension provides a JupyterLab service, identified by the `IETCJupyterLabTelemetryLibraryFactory` token, that can be used to construct a `ETCJupyterLabTelemetryLibrary` instance that exposes Signals associated with user actions in the Notebook.
 
-The `IETCJupyterLabTelemetryLibraryFactory` Token represents a service that can be consumed by a JupyterLab plugin similar to core services: [Core Tokens](https://jupyterlab.readthedocs.io/en/stable/extension/extension_points.html#core-tokens).  See the [Usage](#usage) section for instructions on how to consume the service.
+The `IETCJupyterLabTelemetryLibraryFactory` Token represents a **service** that can be consumed by a JupyterLab plugin similar to how core services are consumed by plugins: [Core Tokens](https://jupyterlab.readthedocs.io/en/stable/extension/extension_points.html#core-tokens). See the [Usage](#usage) section for instructions on how to consume the service.
 
-The following user actions are emitted from the `ETCJupyterLabTelemetryLibrary` as a Signal:
+The ETCJupyterLabTelemetryLibrary service contains Signals grouped according to their functionality. For example in order to `console.log` the `notebook_open` event, you would connect to the Signal like this:
 
-* Active Cell Changed
-* Cell Added
-* Cell Executed
-* Cell Errored
-* Cell Removed
-* Notebook Opened
-* Notebook Saved
-* Notebook Scrolled
+```js
+etcJupyterLabTelemetryLibrary.notebookOpenEvent.notebookOpened.connect(
+  console.log
+);
+```
 
-The consumer plugin can attach a handler to the Signal in order to log the event message.
+The following table provides the Signal Groups and their respective Signal(s).
+
+| Signal Group            | Signal(s)                                                              |
+| ----------------------- | ---------------------------------------------------------------------- |
+| notebookClipboardEvent  | notebookClipboardCopied, notebookClipboardCut, notebookClipboardPasted |
+| notebookVisibilityEvent | notebookVisible, notebookHidden                                        |
+| notebookCloseEvent      | notebookClosed                                                         |
+| notebookOpenEvent       | notebookOpened                                                         |
+| notebookSaveEvent       | notebookSaved                                                          |
+| notebookScrollEvent     | notebookScrolled                                                       |
+| activeCellChangeEvent   | activeCellChanged                                                      |
+| cellAddEvent            | cellAdded                                                              |
+| cellRemoveEvent         | cellRemoved                                                            |
+| cellExecutionEvent      | cellExecuted                                                           |
+| cellErrorEvent          | cellErrored                                                            |
+
+A plugin that consumes this plugin can attach a handler to the Signal(s) of each Signal Group in order to log the event message.
 
 ## Events
 
-Each event message contains a list of cells relevant to that event.  See the [Relevant Cells](#relevant-cells) section for details.  
-
-Each event contains an *incremental* representation of the Notebook.  A Notebook cell will contain just the cell ID if the cell input and output haven't changed since the last event. By providing incremental representations of the Notebook each message will requires less storage.  
-
-This approach allows for messages to be reconstructed by using the cell contents contained in previously logged messages i.e., the cell IDs are used in order to obtain the contents of the cell from a previously logged cell.
-
-Please note that in order to reconstruct messages all *enabled* events must be logged.  Please see the [Configuration](#configuration) for details on how toggle events.
+Each event message (i.e., the message emitted by the Signal) contains a list of cells relevant to that event. See the [Relevant Cells](#relevant-cells) section for details.
 
 ## Event Message Schema
 
+Each event message will contain the name of the event, a list of cells that are relevant to the event, and a reference to the NotebookPanel that emitted the event.
+
 Each event message conforms to the following JSON schema.
 
-```json
-{
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "type": "object",
-  "properties": {
-    "event_name": {
-      "type": "string"
-    },
-    "cells": {
-      "type": "array",
-      "items": [
-        {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "index": {
-              "type": "integer"
-            }
-          },
-          "required": [
-            "id",
-            "index"
-          ]
-        }
-      ]
-    },
-    "notebook": {
-      "type": "object",
-      "properties": {
-        "metadata": {
-          "type": "object",
-          "properties": {
-            "kernelspec": {
-              "type": "object",
-              "properties": {
-                "display_name": {
-                  "type": "string"
-                },
-                "language": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "display_name",
-                "language",
-                "name"
-              ]
-            },
-            "language_info": {
-              "type": "object",
-              "properties": {
-                "codemirror_mode": {
-                  "type": "object",
-                  "properties": {
-                    "name": {
-                      "type": "string"
-                    },
-                    "version": {
-                      "type": "integer"
-                    }
-                  },
-                  "required": [
-                    "name",
-                    "version"
-                  ]
-                },
-                "file_extension": {
-                  "type": "string"
-                },
-                "mimetype": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "nbconvert_exporter": {
-                  "type": "string"
-                },
-                "pygments_lexer": {
-                  "type": "string"
-                },
-                "version": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "codemirror_mode",
-                "file_extension",
-                "mimetype",
-                "name",
-                "nbconvert_exporter",
-                "pygments_lexer",
-                "version"
-              ]
-            }
-          },
-          "required": [
-            "kernelspec",
-            "language_info"
-          ]
-        },
-        "nbformat_minor": {
-          "type": "integer"
-        },
-        "nbformat": {
-          "type": "integer"
-        },
-        "cells": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "cell_type": {
-                "type": "string"
-              },
-              "source": {
-                "type": "string"
-              },
-              "metadata": {
-                "type": "object",
-                "properties": {
-                  "trusted": {
-                    "type": "boolean"
-                  }
-                },
-                "required": [
-                  "trusted"
-                ]
-              },
-              "execution_count": {
-                "type": "null"
-              },
-              "outputs": {
-                "type": "array",
-                "items": {}
-              },
-              "id": {
-                "type": "string"
-              }
-            },
-            "required": [
-
-              "id"
-            ]
-          }
-        }
-      },
-      "required": [
-        "metadata",
-        "nbformat_minor",
-        "nbformat",
-        "cells"
-      ]
-    },
-    "seq": {
-      "type": "integer"
-    },
-    "notebook_path": {
-      "type": "string"
-    },
-    "user_id": {
-      "type": "string"
-    }
-  },
-  "required": [
-    "event_name",
-    "cells",
-    "notebook",
-    "seq",
-    "notebook_path",
-    "user_id"
-  ]
-}
-```
+### TO DO
 
 ## Relevant Cells
 
-For each event the top level `cells` property in the logged message will contain the cells relevant to the event.
+For each event message, in addition to reference to the complete NotebookPanel, which contains the full contents of each cell, the top level `cells` property in the message will contain the cells relevant to the event.
 
-* Active Cell Changed
-  * The cell list contains the ID of the active cell. 
-* Cell Added
-  * The cell list contains the IDs of the added cells.
-* Cell Executed
-  * The cell list contains the ID of the executed cell.
-* Cell Errored
-  * The cell list contains the ID of the cell that produced the error.
-* Cell Removed
-  * The cell list contains the IDs of the removed cells.
-* Notebook Opened
-  * The cell list contains the IDs of all the cells in the notebook.
-* Notebook Saved
-  * The cell list contains the IDs of all the cells in the notebook.
-* Notebook Scrolled
-  * The cell list contains the IDs of the cells that are visible to the user.
+
+| Signal(s)                                                              | Relevant Cells |
+| ---------------------------------------------------------------------- | ---------------|
+| notebookClipboardCopied, notebookClipboardCut, notebookClipboardPasted | The cell list contains the ID of the active cell. |
+| notebookVisible, notebookHidden                                        | The cell list contains the IDs of the cells that are visible to the user. |
+| notebookClosed                                                         | The cell list contains the IDs of all the cells in the notebook. |
+| notebookOpened                                                         | The cell list contains the IDs of all the cells in the notebook. |
+| notebookSaved                                                          | The cell list contains the IDs of all the cells in the notebook. |
+| notebookScrolled                                                       | The cell list contains the IDs of the cells that are visible to the user. |
+| activeCellChanged                                                      | The cell list contains the ID of the active cell. |
+| cellAdded                                                              | The cell list contains the IDs of the added cells. |
+| cellRemoved                                                            | The cell list contains the IDs of the removed cells. |
+| cellExecuted                                                           | The cell list contains the ID of the executed cell. |
+| cellErrored                                                            | The cell list contains the ID of the cell that produced the error. |
 
 ## Usage
 
-Install the extension according to the installation instructions.  
+Install the extension according to the installation instructions.
 
-Once the extension is installed a plugin can consume the service by including it in its `requires` list.  
+Once the extension is installed a plugin can consume the service by including it in its `requires` list. See the below code for an example.
 
-The extension provides a service identified by the IETCJupyterLabTelemetryLibraryFactory token.  In the following example, the `consumer` plugin consumes the Token provided by the etc_jupyterlab_telemetry_library extension.  The ETCJupyterLabTelemetryLibraryFactory is used in order to instantiate a ETCJupyterLabTelemetryLibrary.  ETCJupyterLabTelemetryLibrary contains Signals that are connected to the `console.log` method, which will log the events to the console.
+The extension provides a service identified by the `IETCJupyterLabTelemetryLibraryFactory` token. In the following example, the `consumer` plugin consumes the Token provided by the `etc_jupyterlab_telemetry_library` extension. The `ETCJupyterLabTelemetryLibraryFactory` is used in order to instantiate a `ETCJupyterLabTelemetryLibrary` for each NotebookPanel. Each `ETCJupyterLabTelemetryLibrary` instance contains grouped Signals that are connected to the `console.log` method, which will log the events to the console.
 
-The Signals can be connected to any handler that you choose.  The content of the messages can be filtered according to your needs.
+The Signals can be connected to any handler that you choose. The content of the messages can be filtered according to your needs.
 
 ```js
-import {
-  JupyterFrontEnd,
-  JupyterFrontEndPlugin
-} from '@jupyterlab/application';
-
-import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
-
-import {
-  IETCJupyterLabTelemetryLibraryFactory
-} from "@educational-technology-collective/etc_jupyterlab_telemetry_extension";
-
-import {
-  IETCJupyterLabNotebookStateFactory
-} from "@educational-technology-collective/etc_jupyterlab_notebook_state";
-
-PLUGIN_ID = "the_name_of_the_plugin"
-
 const plugin: JupyterFrontEndPlugin<void> = {
   id: PLUGIN_ID,
   autoStart: true,
-  requires: [INotebookTracker, IETCJupyterLabNotebookStateFactory, IETCJupyterLabTelemetryLibraryFactory],
+  requires: [INotebookTracker, IETCJupyterLabTelemetryLibraryFactory],
   activate: (
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
-    etcJupyterLabNotebookStateFactory: IETCJupyterLabNotebookStateFactory,
     etcJupyterLabTelemetryLibraryFactory: IETCJupyterLabTelemetryLibraryFactory
-    ) => {
+  ) => {
+    (async () => {
+      const VERSION = (await requestAPI) < string > 'version';
 
-    notebookTracker.widgetAdded.connect(async (sender: INotebookTracker, notebookPanel: NotebookPanel) => {
+      console.log(`${PLUGIN_ID}, ${VERSION}`);
 
-      await notebookPanel.revealed;
-      await notebookPanel.sessionContext.ready;
+      await app.started;
 
-      let notebookState = etcJupyterLabNotebookStateFactory.create({ notebookPanel });
+      try {
+        notebookTracker.widgetAdded.connect(
+          (sender: INotebookTracker, notebookPanel: NotebookPanel) => {
+            //  Handlers must be attached immediately in order to detect early events, hence we do not want to await the appearance of the Notebook.
 
-      let etcJupyterLabTelemetryLibrary = etcJupyterLabTelemetryLibraryFactory.create({
-        notebookPanel,
-        notebookState
-      });
+            let etcJupyterLabTelemetryLibrary =
+              etcJupyterLabTelemetryLibraryFactory.create({ notebookPanel });
 
-      etcJupyterLabTelemetryLibrary.notebookOpenEvent.notebookOpened.connect((sender: NotebookOpenEvent, args: any) => console.log("etc_jupyterlab_telemetry_extension", args));
-      etcJupyterLabTelemetryLibrary.notebookSaveEvent.notebookSaved.connect((sender: NotebookSaveEvent, args: any) => console.log("etc_jupyterlab_telemetry_extension", args));
-      etcJupyterLabTelemetryLibrary.activeCellChangeEvent.activeCellChanged.connect((sender: ActiveCellChangeEvent, args: any) => console.log("etc_jupyterlab_telemetry_extension", args))
-      etcJupyterLabTelemetryLibrary.cellAddEvent.cellAdded.connect((sender: CellAddEvent, args: any) => console.log("etc_jupyterlab_telemetry_extension", args))
-      etcJupyterLabTelemetryLibrary.cellRemoveEvent.cellRemoved.connect((sender: CellRemoveEvent, args: any) => console.log("etc_jupyterlab_telemetry_extension", args))
-      etcJupyterLabTelemetryLibrary.notebookScrollEvent.notebookScrolled.connect((sender: NotebookScrollEvent, args: any) => console.log("etc_jupyterlab_telemetry_extension", args))
-      etcJupyterLabTelemetryLibrary.cellExecutionEvent.cellExecuted.connect((sender: CellExecutionEvent, args: any) => console.log("etc_jupyterlab_telemetry_extension", args))
-      etcJupyterLabTelemetryLibrary.cellErrorEvent.cellErrored.connect((sender: CellErrorEvent, args: any) => console.log("etc_jupyterlab_telemetry_extension", args))
+            etcJupyterLabTelemetryLibrary.notebookClipboardEvent.notebookClipboardCopied.connect(
+              console.log
+            );
+            etcJupyterLabTelemetryLibrary.notebookClipboardEvent.notebookClipboardCut.connect(
+              console.log
+            );
+            etcJupyterLabTelemetryLibrary.notebookClipboardEvent.notebookClipboardPasted.connect(
+              console.log
+            );
 
-    });
+            etcJupyterLabTelemetryLibrary.notebookVisibilityEvent.notebookVisible.connect(
+              console.log
+            );
+            etcJupyterLabTelemetryLibrary.notebookVisibilityEvent.notebookHidden.connect(
+              console.log
+            );
 
+            etcJupyterLabTelemetryLibrary.notebookOpenEvent.notebookOpened.connect(
+              console.log
+            );
+            etcJupyterLabTelemetryLibrary.notebookCloseEvent.notebookClosed.connect(
+              console.log
+            );
+            etcJupyterLabTelemetryLibrary.notebookSaveEvent.notebookSaved.connect(
+              console.log
+            );
+            etcJupyterLabTelemetryLibrary.notebookScrollEvent.notebookScrolled.connect(
+              console.log
+            );
+
+            etcJupyterLabTelemetryLibrary.activeCellChangeEvent.activeCellChanged.connect(
+              console.log
+            );
+            etcJupyterLabTelemetryLibrary.cellAddEvent.cellAdded.connect(
+              console.log
+            );
+            etcJupyterLabTelemetryLibrary.cellRemoveEvent.cellRemoved.connect(
+              console.log
+            );
+            etcJupyterLabTelemetryLibrary.cellExecutionEvent.cellExecuted.connect(
+              console.log
+            );
+            etcJupyterLabTelemetryLibrary.cellErrorEvent.cellErrored.connect(
+              console.log
+            );
+          }
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    })();
   }
 };
-
-
 ```
 
 ## Configuration
 
-The extension requires a configuration file that specifies which events will be emitted.
+The extension requires a configuration file that specifies which Signal _groups_ will emit events.
 
-The configuration file may be placed in any of the Jupyter Server configuration directories.  Execute `jupyter --paths` in order to get a list of configuration directories.  The configuration file must be named `etc_jupyterlab_telemetry_library.json` in order for Jupyter Server to associate it with the extension.
+The configuration file may be placed in any of the Jupyter Server configuration directories e.g., `/etc/jupyter`. Execute `jupyter --paths` in order to get a list of valid configuration directories. The configuration file must be named `jupyter_etc_jupyterlab_telemetry_coursera_config.py`.
 
-This is an example of a valid JSON configuration file:
-```json
-{
-    "mentoracademy.org/schemas/events/1.0.0/NotebookSaveEvent": {
-        "enable": true
-    },
-    "mentoracademy.org/schemas/events/1.0.0/NotebookOpenEvent": {
-        "enable": true
-    },
-    "mentoracademy.org/schemas/events/1.0.0/CellRemoveEvent": {
-        "enable": true
-    },
-    "mentoracademy.org/schemas/events/1.0.0/CellAddEvent": {
-        "enable": true
-    },
-    "mentoracademy.org/schemas/events/1.0.0/CellExecutionEvent": {
-        "enable": true
-    },
-    "mentoracademy.org/schemas/events/1.0.0/NotebookScrollEvent": {
-        "enable": true
-    },
-    "mentoracademy.org/schemas/events/1.0.0/ActiveCellChangeEvent": {
-        "enable": true
-    },
-    "mentoracademy.org/schemas/events/1.0.0/CellErrorEvent": {
-        "enable": true
-    }
-}
+This is an example of a valid configuration file:
+
+```py
+c.ETCJupyterLabTelemetryLibraryApp.notebook_clipboard_event = True
+c.ETCJupyterLabTelemetryLibraryApp.notebook_visibility_event = True
+c.ETCJupyterLabTelemetryLibraryApp.notebook_save_event = True
+c.ETCJupyterLabTelemetryLibraryApp.notebook_close_event = True
+c.ETCJupyterLabTelemetryLibraryApp.notebook_open_event = True
+c.ETCJupyterLabTelemetryLibraryApp.notebook_cell_remove_event = True
+c.ETCJupyterLabTelemetryLibraryApp.notebook_cell_add_event = True
+c.ETCJupyterLabTelemetryLibraryApp.notebook_cell_execution_event = True
+c.ETCJupyterLabTelemetryLibraryApp.notebook_scroll_event = True
+c.ETCJupyterLabTelemetryLibraryApp.notebook_active_cell_change_event = True
+c.ETCJupyterLabTelemetryLibraryApp.notebook_cell_error_event = True
 ```
 
-An event can be disabled by setting its `enable` property to `false`.  The change will take effect next time you start JupyterLab.
+An Signal group can be enable or disabled by setting the respective property to `True` or `False`. This setting will enable or disable all of the Signals in the respective group.  The change will take effect each time JupyterLab is started.
 
 ## Requirements
 
-* JupyterLab >= 3.0
+- JupyterLab >= 3.0
 
 ## Install
 
@@ -360,7 +197,6 @@ To remove the extension, execute:
 pip uninstall etc_jupyterlab_telemetry_library
 ```
 
-
 ## Troubleshoot
 
 If you are seeing the frontend extension, but it is not working, check
@@ -376,7 +212,6 @@ the frontend extension, check the frontend extension is installed:
 ```bash
 jupyter labextension list
 ```
-
 
 ## Contributing
 
