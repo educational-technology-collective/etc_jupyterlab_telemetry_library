@@ -18,17 +18,14 @@ class RouteHandler(ExtensionHandlerMixin, JupyterHandler):
     def get(self, resource):
 
         try:
-            self.add_header('Content-Type', 'application/json')
+            self.set_header('Content-Type', 'application/json')
             
             if resource == 'version':
                 self.finish(json.dumps(_fetchVersion()))
-
             elif resource == 'config':
                 self.finish(json.dumps(self.config))
-
             elif resource == 'environ':
                 self.finish(json.dumps({k:v for k, v in os.environ.items()}))
-                
             else:
                 self.set_status(404)
 

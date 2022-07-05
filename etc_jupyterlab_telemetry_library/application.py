@@ -6,9 +6,6 @@ import pprint
 class ETCJupyterLabTelemetryLibraryApp(ExtensionApp):
 
     name = "etc_jupyterlab_telemetry_library"
-    default_url = "/etc-jupyterlab-telemetry-library"
-    load_other_extensions = True
-    file_url_prefix = "/render"
 
     notebook_clipboard_event = Bool(True).tag(config=True)
     notebook_visibility_event = Bool(True).tag(config=True)
@@ -23,13 +20,15 @@ class ETCJupyterLabTelemetryLibraryApp(ExtensionApp):
     notebook_cell_error_event = Bool(True).tag(config=True)
 
     def initialize_settings(self):
-
         try:
             self.log.info(f"ETCJupyterLabTelemetryLibraryApp.config {pprint.pformat(self.config)}")
         except Exception as e:
             self.log.error(str(e))
 
     def initialize_handlers(self):
-
-        self.handlers.extend([("/etc-jupyterlab-telemetry-library/(.*)", RouteHandler)])
+        try:
+            self.handlers.extend([(r"/etc-jupyterlab-telemetry-library/(.*)", RouteHandler)])
+        except Exception as e:
+            self.lof.error(str(e))
+            raise e
 
