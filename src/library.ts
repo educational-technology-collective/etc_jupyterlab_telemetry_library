@@ -2,7 +2,8 @@ import {
     NotebookPanel,
     INotebookModel,
     Notebook,
-    NotebookActions
+    NotebookActions,
+    KernelError
 } from '@jupyterlab/notebook';
 
 import {
@@ -202,7 +203,7 @@ export class NotebookClipboardEvent {
             eventName: 'clipboard_copy',
             cells: cells,
             notebookPanel: this._notebookPanel,
-            meta: text
+            selection: text
         });
     }
 
@@ -223,7 +224,7 @@ export class NotebookClipboardEvent {
             eventName: 'clipboard_cut',
             cells: cells,
             notebookPanel: this._notebookPanel,
-            meta: text
+            selection: text
         });
     }
 
@@ -244,7 +245,7 @@ export class NotebookClipboardEvent {
             eventName: 'clipboard_paste',
             cells: cells,
             notebookPanel: this._notebookPanel,
-            meta: text
+            selection: text
         });
     }
 
@@ -725,7 +726,7 @@ export class NotebookOpenEvent {
             eventName: 'open_notebook',
             cells: cells,
             notebookPanel: this._notebookPanel,
-            meta: await requestAPI<any>('environ')
+            environ: await requestAPI<any>('environ')
         });
 
         this._once = true;
@@ -857,7 +858,7 @@ export class CellErrorEvent {
 
                     await notebookPanel.revealed;
 
-                    notebookPanel.sessionContext.iopubMessage.connect(this.onCellErrored, this);
+                    NotebookActions.executed.connect(this.onExecuted, this);
                 }
                 catch (e) {
                     console.error(e);
@@ -871,21 +872,27 @@ export class CellErrorEvent {
         Signal.disconnectAll(this);
     }
 
-    private onCellErrored(_: any, args: IMessage<MessageType>): void {
-
-        if (args.header.msg_type == 'error') {
+    private onExecuted(_: any, args: {
+        notebook: Notebook;
+        cell: Cell<ICellModel>;
+        success: boolean;
+        error?: KernelError | null | undefined;
+    }): void {
+        
+        if (!args.success || args.error) {
 
             let cells = [
                 {
-                    id: this._notebookPanel.content.activeCell?.model.id,
-                    index: this._notebookPanel.content.activeCellIndex
+                    id: args.cell.model.id,
+                    index: this._notebookPanel.content.widgets.findIndex((value: Cell<ICellModel>) => value == args.cell)
                 }
             ]
 
             this._cellErrored.emit({
                 eventName: 'cell_errored',
                 cells: cells,
-                notebookPanel: this._notebookPanel
+                notebookPanel: this._notebookPanel,
+                kernelError: args.error
             });
         }
     }

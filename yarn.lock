@@ -76,9 +76,9 @@
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
 "@educational-technology-collective/etc_jupyterlab_notebook_state_provider@^2.0.0":
-  version "2.0.6"
-  resolved "https://registry.yarnpkg.com/@educational-technology-collective/etc_jupyterlab_notebook_state_provider/-/etc_jupyterlab_notebook_state_provider-2.0.6.tgz#4eed836fb4e92c17ea4477c2d58cc6cabc6908bc"
-  integrity sha512-0IiIY1mb63op8Co0sKUgdFR5A0YnlWTSBarq58NveH8p8A+itkYr+lKGukvPFwGacl+Bv92NxovKQpF/WEcIwA==
+  version "2.0.7"
+  resolved "https://registry.yarnpkg.com/@educational-technology-collective/etc_jupyterlab_notebook_state_provider/-/etc_jupyterlab_notebook_state_provider-2.0.7.tgz#235b06b9bb9842a57278f635f38b60c98437d8ec"
+  integrity sha512-Y9SlYK/p+JfmSgrpVfVA6zgae0FpNiQ34+344+ChPB4LEc0PEDkU1yuIykUuQRdjPhaG67wdDoILJYn2AmGQyw==
   dependencies:
     "@jupyterlab/application" "^3.1.0"
     "@jupyterlab/coreutils" "^5.1.0"

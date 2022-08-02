@@ -1,4 +1,4 @@
-import { NotebookPanel } from "@jupyterlab/notebook";
+import { KernelError, NotebookPanel } from "@jupyterlab/notebook";
 
 export interface IConfig {
     notebook_clipboard_event: boolean;
@@ -28,5 +28,8 @@ export interface INotebookEventMessage {
     eventName: string;
     cells: Array<ICellMeta>;
     notebookPanel: NotebookPanel;
+    kernelError?: KernelError | null | undefined;
+    selection?: string;
     meta?: any;
+    environ?: object
 }

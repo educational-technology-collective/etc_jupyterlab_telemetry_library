@@ -55,7 +55,7 @@ For each event message, in addition to reference to the complete NotebookPanel, 
 | notebookVisible, notebookHidden                                        | The cell list contains the IDs of the cells that are visible to the user. |
 | notebookClosed                                                         | The cell list contains the IDs of all the cells in the notebook. |
 | notebookOpened                                                         | The cell list contains the IDs of all the cells in the notebook. |
-| notebookSaved                                                          | The cell list contains the IDs of all the cells in the notebook. |
+| notebookSaved                                                          | The cell list contains active or selected cell. |
 | notebookScrolled                                                       | The cell list contains the IDs of the cells that are visible to the user. |
 | activeCellChanged                                                      | The cell list contains the ID of the active cell. |
 | cellAdded                                                              | The cell list contains the IDs of the added cells. |
