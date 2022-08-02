@@ -1,6 +1,6 @@
 {
   "name": "@educational-technology-collective/etc_jupyterlab_telemetry_library",
-  "version": "2.1.6",
+  "version": "2.1.7",
   "description": "A JupyterLab extension.",
   "keywords": [
     "jupyter",
