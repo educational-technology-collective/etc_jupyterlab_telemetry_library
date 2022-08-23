@@ -52,7 +52,7 @@ const plugin: JupyterFrontEndPlugin<IETCJupyterLabTelemetryLibraryFactory> = {
     etcJupyterLabNotebookStateProvider: IETCJupyterLabNotebookStateProvider
   ): Promise<IETCJupyterLabTelemetryLibraryFactory> => {
 
-    const VERSION = await requestAPI<string>("version")
+    const VERSION = await requestAPI<string>("version");
 
     console.log(`${PLUGIN_ID}, ${VERSION}`);
 

@@ -12,9 +12,9 @@ export interface IConfig {
     notebook_scroll_event: boolean;
     notebook_active_cell_change_event: boolean;
     notebook_cell_error_event: boolean;
-  }
+}
 
-  export interface ICellMeta {
+export interface ICellMeta {
     index: number;
     id: any;
 }
@@ -31,5 +31,6 @@ export interface INotebookEventMessage {
     kernelError?: KernelError | null | undefined;
     selection?: string;
     meta?: any;
-    environ?: object
+    environ?: object,
+    message?: any
 }
