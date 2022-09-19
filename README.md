@@ -30,15 +30,15 @@ The following table provides the Signal Groups and their respective Signal(s).
 
 A plugin that consumes this plugin can attach a handler to the Signal(s) of each Signal Group in order to log the event message.
 
-## Events
+## Event Messages
 
 Each event message (i.e., the message emitted by the Signal) contains a list of cells relevant to that event. See the [Relevant Cells](#relevant-cells) section for details.
 
-## Event Message Schema
+### Event Message Schema
 
 Each event message will contain the name of the event, a list of cells that are relevant to the event, and a reference to the NotebookPanel that emitted the event.
 
-## Relevant Cells
+### Relevant Cells
 
 For each event message, in addition to a reference to the complete NotebookPanel, which contains the full contents of each cell, the top level `cells` property in the message will contain the cells relevant to the event.
 
@@ -57,7 +57,7 @@ For each event message, in addition to a reference to the complete NotebookPanel
 | cellExecuted                                                           | The cell list contains the ID of the executed cell. |
 | cellErrored                                                            | The cell list contains the ID of the cell that produced the error. |
 
-## Usage
+# Usage
 
 This extension provides a factory service, identified by the `IETCJupyterLabTelemetryLibraryFactory` token, that can be used to construct a `ETCJupyterLabTelemetryLibrary` instance that exposes Signals associated with user actions in the Notebook.
 
@@ -149,7 +149,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 };
 ```
 
-## Configuration
+# Configuration
 
 The extension requires a configuration file that specifies which Signal _groups_ will emit events.
 
@@ -173,45 +173,7 @@ c.ETCJupyterLabTelemetryLibraryApp.notebook_cell_error_event = True
 
 A Signal group can be enabled or disabled by setting the respective property to `True` or `False`. This setting will enable or disable all of the Signals in the respective group.  The change will take effect each time the Jupyter Server is started.
 
-## Requirements
-
-- JupyterLab >= 3.0
-
-## Install
-
-To install the extension, execute:
-
-```bash
-pip install etc_jupyterlab_telemetry_library
-```
-
-## Uninstall
-
-To remove the extension, execute:
-
-```bash
-pip uninstall etc_jupyterlab_telemetry_library
-```
-
-## Troubleshoot
-
-If you are seeing the frontend extension, but it is not working, check
-that the server extension is enabled:
-
-```bash
-jupyter server extension list
-```
-
-If the server extension is installed and enabled, but you are not seeing
-the frontend extension, check the frontend extension is installed:
-
-```bash
-jupyter labextension list
-```
-
-## Contributing
-
-### Development install
+# Development install
 
 Note: You will need NodeJS to build the extension package.
 
