@@ -1,12 +1,18 @@
 # Introduction
 
-This extension provides a factory that produces an object that implements an interface that consists of Lumino [Signals](#signals) that can be used in order to capture telemetry events.
+This extension provides a factory that produces an object that implements an interface that consists of grouped Lumino [Signals](#signals) that can be used in order to capture telemetry events.
 
-This extension is not intended to operate on its own.  This extension should be consumed by a [Consumer](https://jupyterlab.readthedocs.io/en/stable/extension/extension_dev.html?highlight=consumer#tokens) extension that filters, modifies, and records the messages produced by this extension as required by the particular application. Please see the [ETC JupyterLab Telemetry Coursera](https://github.com/educational-technology-collective/etc_jupyterlab_telemetry_coursera) extension for an example of how to consume this extension and log the messages produced by it.
+This extension is not intended to operate on its own.  This extension should be consumed by a [Consumer](https://jupyterlab.readthedocs.io/en/stable/extension/extension_dev.html?highlight=consumer#tokens) extension that filters, modifies, and records the messages produced by this extension as required for the given application. Please see the [ETC JupyterLab Telemetry Coursera](https://github.com/educational-technology-collective/etc_jupyterlab_telemetry_coursera) extension for an example of how to consume this extension and log the messages produced by it.
 
 # Signals
 
-This extension consists of "Signal Groups" and their respective Signals.  A Signal Group is a means of grouping Signals that are either related or that have shared dependencies.  The following table provides the Signal Groups and their respective Signal(s).
+This extension consists of "Signal Groups" and their respective Signals.  A Signal Group is a means of grouping Signals that are either related or that have shared dependencies.  Accessing a Signal is done through its respective group; for example, once you have instantiated a `ETCJupyterLabTelemetryLibrary` instance you can access the `notebookVisible` Signal through the `notebookVisibilityEvent` Signal Group. For example:
+
+```js
+etcJupyterLabTelemetryLibrary.notebookVisibilityEvent.notebookVisible.connect(messageAdapter.log)
+```
+
+The following table provides the Signal Groups and their respective Signal(s).
 
 | Signal Group            | Signal(s)                                                              |
 | ----------------------- | ---------------------------------------------------------------------- |
@@ -57,21 +63,11 @@ This extension provides a factory service, identified by the `IETCJupyterLabTele
 
 The `IETCJupyterLabTelemetryLibraryFactory` Token represents a **service** that can be consumed by a JupyterLab plugin similar to how core services are consumed by plugins: [Core Tokens](https://jupyterlab.readthedocs.io/en/stable/extension/extension_points.html#core-tokens). See the [Usage](#usage) section for instructions on how to consume the service.
 
-The `ETCJupyterLabTelemetryLibrary` service contains Signals grouped according to their functionality. For example in order to `console.log` the `notebook_open` event, you would connect to the Signal like this:
+Install the extension according to the [installation](#install) instructions.  Once the extension is installed a plugin can consume the service by including it in its `requires` list. See the below code for an example.
 
-```js
-etcJupyterLabTelemetryLibrary.notebookOpenEvent.notebookOpened.connect(
-  console.log
-);
-```
+In the example below, the extension provides a service identified by the `IETCJupyterLabTelemetryLibraryFactory` token. The `consumer` plugin consumes the Token provided by the `etc_jupyterlab_telemetry_library` extension. The `ETCJupyterLabTelemetryLibraryFactory` is used in order to instantiate a `ETCJupyterLabTelemetryLibrary` for each NotebookPanel. Each `ETCJupyterLabTelemetryLibrary` instance contains grouped Signals that are connected to the `console.log` method, which will log the events to the console.
 
-Install the extension according to the [installation](#install) instructions.
-
-Once the extension is installed a plugin can consume the service by including it in its `requires` list. See the below code for an example.
-
-The extension provides a service identified by the `IETCJupyterLabTelemetryLibraryFactory` token. In the following example, the `consumer` plugin consumes the Token provided by the `etc_jupyterlab_telemetry_library` extension. The `ETCJupyterLabTelemetryLibraryFactory` is used in order to instantiate a `ETCJupyterLabTelemetryLibrary` for each NotebookPanel. Each `ETCJupyterLabTelemetryLibrary` instance contains grouped Signals that are connected to the `console.log` method, which will log the events to the console.
-
-The Signals can be connected to any handler that you choose. The content of the messages can be filtered according to your needs.
+The Signals can be connected to the handler of your choice. The content of the messages can be filtered according to your needs.
 
 ```js
 const plugin: JupyterFrontEndPlugin<void> = {
@@ -175,7 +171,7 @@ c.ETCJupyterLabTelemetryLibraryApp.notebook_active_cell_change_event = True
 c.ETCJupyterLabTelemetryLibraryApp.notebook_cell_error_event = True
 ```
 
-A Signal group can be enabled or disabled by setting the respective property to `True` or `False`. This setting will enable or disable all of the Signals in the respective group.  The change will take effect each time JupyterLab is started.
+A Signal group can be enabled or disabled by setting the respective property to `True` or `False`. This setting will enable or disable all of the Signals in the respective group.  The change will take effect each time the Jupyter Server is started.
 
 ## Requirements
 
