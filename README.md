@@ -1,20 +1,12 @@
-# ETC JupyterLab Telemetry Library
+# Introduction
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/educational-technology-collective/etc_jupyterlab_telemetry_library/main?urlpath=lab)
+This extension provides a factory that produces an object that implements an interface that consists of Lumino [Signals](#signals) that can be used in order to capture telemetry events.
 
-This extension provides a JupyterLab service, identified by the `IETCJupyterLabTelemetryLibraryFactory` token, that can be used to construct a `ETCJupyterLabTelemetryLibrary` instance that exposes Signals associated with user actions in the Notebook.
+This extension is not intended to operate on its own.  This extension should be consumed by a [Consumer](https://jupyterlab.readthedocs.io/en/stable/extension/extension_dev.html?highlight=consumer#tokens) extension that filters, modifies, and records the messages produced by this extension. Please see the [ETC JupyterLab Telemetry Coursera](https://github.com/educational-technology-collective/etc_jupyterlab_telemetry_coursera) extension for an example of how to consume this extension and log the messages produced by it.
 
-The `IETCJupyterLabTelemetryLibraryFactory` Token represents a **service** that can be consumed by a JupyterLab plugin similar to how core services are consumed by plugins: [Core Tokens](https://jupyterlab.readthedocs.io/en/stable/extension/extension_points.html#core-tokens). See the [Usage](#usage) section for instructions on how to consume the service.
+# Signals
 
-The ETCJupyterLabTelemetryLibrary service contains Signals grouped according to their functionality. For example in order to `console.log` the `notebook_open` event, you would connect to the Signal like this:
-
-```js
-etcJupyterLabTelemetryLibrary.notebookOpenEvent.notebookOpened.connect(
-  console.log
-);
-```
-
-The following table provides the Signal Groups and their respective Signal(s).
+This extension consists of "Signal Groups" and their respective Signals.  A Signal Group is a means of grouping Signals that are either related or that have shared dependencies.  The following table provides the Signal Groups and their respective Signal(s).
 
 | Signal Group            | Signal(s)                                                              |
 | ----------------------- | ---------------------------------------------------------------------- |
@@ -65,7 +57,20 @@ For each event message, in addition to reference to the complete NotebookPanel, 
 
 ## Usage
 
-Install the extension according to the installation instructions.
+
+This extension provides a factory service, identified by the `IETCJupyterLabTelemetryLibraryFactory` token, that can be used to construct a `ETCJupyterLabTelemetryLibrary` instance that exposes Signals associated with user actions in the Notebook.
+
+The `IETCJupyterLabTelemetryLibraryFactory` Token represents a **service** that can be consumed by a JupyterLab plugin similar to how core services are consumed by plugins: [Core Tokens](https://jupyterlab.readthedocs.io/en/stable/extension/extension_points.html#core-tokens). See the [Usage](#usage) section for instructions on how to consume the service.
+
+The ETCJupyterLabTelemetryLibrary service contains Signals grouped according to their functionality. For example in order to `console.log` the `notebook_open` event, you would connect to the Signal like this:
+
+```js
+etcJupyterLabTelemetryLibrary.notebookOpenEvent.notebookOpened.connect(
+  console.log
+);
+```
+
+Install the extension according to the [installation](#install) instructions.
 
 Once the extension is installed a plugin can consume the service by including it in its `requires` list. See the below code for an example.
 
