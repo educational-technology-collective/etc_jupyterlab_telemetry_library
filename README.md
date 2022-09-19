@@ -2,7 +2,7 @@
 
 This extension provides a factory that produces an object that implements an interface that consists of Lumino [Signals](#signals) that can be used in order to capture telemetry events.
 
-This extension is not intended to operate on its own.  This extension should be consumed by a [Consumer](https://jupyterlab.readthedocs.io/en/stable/extension/extension_dev.html?highlight=consumer#tokens) extension that filters, modifies, and records the messages produced by this extension. Please see the [ETC JupyterLab Telemetry Coursera](https://github.com/educational-technology-collective/etc_jupyterlab_telemetry_coursera) extension for an example of how to consume this extension and log the messages produced by it.
+This extension is not intended to operate on its own.  This extension should be consumed by a [Consumer](https://jupyterlab.readthedocs.io/en/stable/extension/extension_dev.html?highlight=consumer#tokens) extension that filters, modifies, and records the messages produced by this extension as required by the particular application. Please see the [ETC JupyterLab Telemetry Coursera](https://github.com/educational-technology-collective/etc_jupyterlab_telemetry_coursera) extension for an example of how to consume this extension and log the messages produced by it.
 
 # Signals
 
@@ -32,13 +32,9 @@ Each event message (i.e., the message emitted by the Signal) contains a list of 
 
 Each event message will contain the name of the event, a list of cells that are relevant to the event, and a reference to the NotebookPanel that emitted the event.
 
-Each event message conforms to the following JSON schema.
-
-### TO DO
-
 ## Relevant Cells
 
-For each event message, in addition to reference to the complete NotebookPanel, which contains the full contents of each cell, the top level `cells` property in the message will contain the cells relevant to the event.
+For each event message, in addition to a reference to the complete NotebookPanel, which contains the full contents of each cell, the top level `cells` property in the message will contain the cells relevant to the event.
 
 
 | Signal(s)                                                              | Relevant Cells |
@@ -57,12 +53,11 @@ For each event message, in addition to reference to the complete NotebookPanel, 
 
 ## Usage
 
-
 This extension provides a factory service, identified by the `IETCJupyterLabTelemetryLibraryFactory` token, that can be used to construct a `ETCJupyterLabTelemetryLibrary` instance that exposes Signals associated with user actions in the Notebook.
 
 The `IETCJupyterLabTelemetryLibraryFactory` Token represents a **service** that can be consumed by a JupyterLab plugin similar to how core services are consumed by plugins: [Core Tokens](https://jupyterlab.readthedocs.io/en/stable/extension/extension_points.html#core-tokens). See the [Usage](#usage) section for instructions on how to consume the service.
 
-The ETCJupyterLabTelemetryLibrary service contains Signals grouped according to their functionality. For example in order to `console.log` the `notebook_open` event, you would connect to the Signal like this:
+The `ETCJupyterLabTelemetryLibrary` service contains Signals grouped according to their functionality. For example in order to `console.log` the `notebook_open` event, you would connect to the Signal like this:
 
 ```js
 etcJupyterLabTelemetryLibrary.notebookOpenEvent.notebookOpened.connect(
@@ -180,7 +175,7 @@ c.ETCJupyterLabTelemetryLibraryApp.notebook_active_cell_change_event = True
 c.ETCJupyterLabTelemetryLibraryApp.notebook_cell_error_event = True
 ```
 
-An Signal group can be enable or disabled by setting the respective property to `True` or `False`. This setting will enable or disable all of the Signals in the respective group.  The change will take effect each time JupyterLab is started.
+A Signal group can be enabled or disabled by setting the respective property to `True` or `False`. This setting will enable or disable all of the Signals in the respective group.  The change will take effect each time JupyterLab is started.
 
 ## Requirements
 
