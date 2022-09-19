@@ -173,7 +173,7 @@ c.ETCJupyterLabTelemetryLibraryApp.notebook_cell_error_event = True
 
 A Signal group can be enabled or disabled by setting the respective property to `True` or `False`. This setting will enable or disable all of the Signals in the respective group.  The change will take effect each time the Jupyter Server is started.
 
-# Development install
+# Development Install
 
 Note: You will need NodeJS to build the extension package.
 
@@ -211,7 +211,7 @@ By default, the `jlpm run build` command generates the source maps for this exte
 jupyter lab build --minimize=False
 ```
 
-### Development uninstall
+## Development Uninstall
 
 ```bash
 # Server extension must be manually disabled in develop mode
@@ -223,6 +223,6 @@ In development mode, you will also need to remove the symlink created by `jupyte
 command. To find its location, you can run `jupyter labextension list` to figure out where the `labextensions`
 folder is located. Then you can remove the symlink named `@educational-technology-collective/etc_jupyterlab_telemetry_library` within that folder.
 
-### Packaging the extension
+## Packaging the Extension
 
 See [RELEASE](RELEASE.md)
