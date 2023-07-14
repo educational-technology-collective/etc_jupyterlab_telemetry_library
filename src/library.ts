@@ -25,8 +25,6 @@ import {
     DocumentRegistry
 } from '@jupyterlab/docregistry';
 
-import { IMessage, MessageType } from '@jupyterlab/services/lib/kernel/messages';
-
 import { ICellMeta, IConfig, INotebookEventMessage, INotebookEventOptions } from './types';
 
 import { requestAPI } from './handler';
