@@ -3,7 +3,8 @@ import {
     INotebookModel,
     Notebook,
     NotebookActions,
-    KernelError
+    KernelError,
+    CellList
 } from '@jupyterlab/notebook';
 
 import {
@@ -17,8 +18,7 @@ import {
 } from '@jupyterlab/cells';
 
 import {
-    IObservableList,
-    IObservableUndoableList
+    IObservableList
 } from '@jupyterlab/observables';
 
 import {
@@ -651,14 +651,14 @@ export class ActiveCellChangeEvent {
         Signal.disconnectAll(this);
     }
 
-    private onActiveCellChanged(send: Notebook, args: Cell<ICellModel>): void {
+    private onActiveCellChanged(send: Notebook, args: Cell<ICellModel> | null): void {
 
         if (this._notebook.widgets.length > 1) {
             //  More than 1 cell is needed in order for this event to happen; hence, check the number of cells.
 
             let cells = [
                 {
-                    id: args.model.id,
+                    id: args?.model.id,
                     index: this._notebook.widgets.findIndex((value: Cell<ICellModel>) => value == args)
                 }
             ];
@@ -767,7 +767,7 @@ export class CellAddEvent {
     }
 
     private onCellsChanged(
-        sender: IObservableUndoableList<ICellModel>,
+        sender: CellList,
         args: IObservableList.IChangedArgs<ICellModel>) {
 
         if (args.type == 'add') {
@@ -819,7 +819,7 @@ export class CellRemoveEvent {
     }
 
     private onCellsChanged(
-        sender: IObservableUndoableList<ICellModel>,
+        sender: CellList,
         args: IObservableList.IChangedArgs<ICellModel>) {
 
         if (args.type == 'remove') {
