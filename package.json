@@ -19,7 +19,8 @@
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
     "style/**/*.{css,js,eot,gif,html,jpg,json,png,svg,woff2,ttf}",
-    "schema/*.json"
+    "schema/*.json",
+    "style/index.js"
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -29,47 +30,65 @@
     "url": "https://github.com/educational-technology-collective/etc_jupyterlab_telemetry_library.git"
   },
   "scripts": {
-    "build": "jlpm run build:lib && jlpm run build:labextension:dev",
-    "build:prod": "jlpm run clean && jlpm run build:lib && jlpm run build:labextension",
+    "build": "jlpm build:lib && jlpm build:labextension:dev",
     "build:labextension": "jupyter labextension build .",
     "build:labextension:dev": "jupyter labextension build --development True .",
-    "build:lib": "tsc",
-    "clean": "jlpm run clean:lib",
+    "build:lib": "tsc --sourceMap",
+    "build:lib:prod": "tsc",
+    "build:prod": "jlpm clean && jlpm build:lib:prod && jlpm build:labextension",
+    "clean": "jlpm clean:lib",
+    "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache",
+    "clean:labextension": "rimraf etc_jupyterlab_telemetry_library/labextension etc_jupyterlab_telemetry_library/_version.py",
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
-    "clean:labextension": "rimraf etc_jupyterlab_telemetry_library/labextension",
-    "clean:all": "jlpm run clean:lib && jlpm run clean:labextension",
-    "eslint": "eslint . --ext .ts,.tsx --fix",
-    "eslint:check": "eslint . --ext .ts,.tsx",
-    "install:extension": "jlpm run build",
+    "clean:lintcache": "rimraf .eslintcache .stylelintcache",
+    "eslint": "jlpm eslint:check --fix",
+    "eslint:check": "eslint . --cache --ext .ts,.tsx",
+    "install:extension": "jlpm build",
+    "lint": "jlpm stylelint && jlpm prettier && jlpm eslint",
+    "lint:check": "jlpm stylelint:check && jlpm prettier:check && jlpm eslint:check",
+    "prettier": "jlpm prettier:base --write --list-different",
+    "prettier:base": "prettier \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
+    "prettier:check": "jlpm prettier:base --check",
+    "stylelint": "jlpm stylelint:check --fix",
+    "stylelint:check": "stylelint --cache \"style/**/*.css\"",
     "watch": "run-p watch:src watch:labextension",
-    "watch:src": "tsc -w",
-    "watch:labextension": "jupyter labextension watch ."
+    "watch:labextension": "jupyter labextension watch .",
+    "watch:src": "tsc -w --sourceMap"
   },
   "dependencies": {
-    "@educational-technology-collective/etc_jupyterlab_notebook_state_provider": "^2.0.0",
-    "@jupyterlab/application": "^3.0.9",
-    "@jupyterlab/coreutils": "^5.0.5",
-    "@jupyterlab/docregistry": "^3.0.9",
-    "@jupyterlab/nbformat": "^3.0.5",
-    "@jupyterlab/notebook": "^3.0.9",
-    "@jupyterlab/observables": "^4.0.5",
-    "@jupyterlab/outputarea": "^3.0.8",
-    "@jupyterlab/services": "^6.0.7",
-    "@jupyterlab/settingregistry": "^3.0.5",
-    "@lumino/signaling": "^1.4.3"
+    "@jupyterlab/application": "^4.0.2",
+    "@jupyterlab/coreutils": "^6.0.2",
+    "@jupyterlab/docregistry": "^4.0.2",
+    "@jupyterlab/nbformat": "^4.0.2",
+    "@jupyterlab/notebook": "^4.0.2",
+    "@jupyterlab/observables": "^5.0.2",
+    "@jupyterlab/outputarea": "^4.0.2",
+    "@jupyterlab/services": "^7.0.2",
+    "@jupyterlab/settingregistry": "^4.0.2",
+    "@lumino/signaling": "^2.0.0"
   },
   "devDependencies": {
-    "@jupyterlab/builder": "^3.1.0",
-    "@typescript-eslint/eslint-plugin": "^4.8.1",
-    "@typescript-eslint/parser": "^4.8.1",
-    "eslint": "^7.14.0",
-    "eslint-config-prettier": "^6.15.0",
-    "eslint-plugin-prettier": "^3.1.4",
+    "@jupyterlab/builder": "^4.0.0",
+    "@types/json-schema": "^7.0.11",
+    "@types/react": "^18.0.26",
+    "@typescript-eslint/eslint-plugin": "^5.55.0",
+    "@typescript-eslint/parser": "^5.55.0",
+    "css-loader": "^6.7.1",
+    "eslint": "^8.36.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^5.0.0",
     "mkdirp": "^1.0.3",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.1.1",
-    "rimraf": "^3.0.2",
-    "typescript": "~4.1.3"
+    "prettier": "^3.0.0",
+    "rimraf": "^4.4.1",
+    "source-map-loader": "^1.0.2",
+    "style-loader": "^3.3.1",
+    "stylelint": "^15.10.1",
+    "stylelint-config-recommended": "^13.0.0",
+    "stylelint-config-standard": "^34.0.0",
+    "stylelint-prettier": "^4.0.0",
+    "typescript": "~5.0.2",
+    "yjs": "^13.5.40"
   },
   "sideEffects": [
     "style/*.css",
@@ -77,13 +96,6 @@
   ],
   "styleModule": "style/index.js",
   "jupyterlab": {
-    "sharedPackages": {
-      "@educational-technology-collective/etc_jupyterlab_notebook_state_provider": {
-        "bundled": false,
-        "singleton": true,
-        "strictVersion": true
-      }
-    },
     "discovery": {
       "server": {
         "managers": [

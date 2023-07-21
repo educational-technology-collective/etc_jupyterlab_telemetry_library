@@ -1,0 +1,14 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.0.9
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: ''
+author_name: ETC
+has_binder: true
+has_settings: true
+kind: server
+labextension_name: '@educational-technology-collective/etc_jupyterlab_telemetry_library'
+project_short_description: A JupyterLab extension.
+python_name: etc_jupyterlab_telemetry_library
+repository: https://github.com/educational-technology-collective/etc_jupyterlab_telemetry_library.git
+test: false
+
