@@ -56,7 +56,6 @@
     "watch:src": "tsc -w --sourceMap"
   },
   "dependencies": {
-    "@educational-technology-collective/etc_jupyterlab_notebook_state_provider": "^2.0.0",
     "@jupyterlab/application": "^4.0.2",
     "@jupyterlab/coreutils": "^6.0.2",
     "@jupyterlab/docregistry": "^4.0.2",
@@ -97,13 +96,6 @@
   ],
   "styleModule": "style/index.js",
   "jupyterlab": {
-    "sharedPackages": {
-      "@educational-technology-collective/etc_jupyterlab_notebook_state_provider": {
-        "bundled": false,
-        "singleton": true,
-        "strictVersion": true
-      }
-    },
     "discovery": {
       "server": {
         "managers": [

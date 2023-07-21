@@ -334,24 +334,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@educational-technology-collective/etc_jupyterlab_notebook_state_provider@npm:^2.0.0":
-  version: 2.0.7
-  resolution: "@educational-technology-collective/etc_jupyterlab_notebook_state_provider@npm:2.0.7"
-  dependencies:
-    "@jupyterlab/application": ^4.0.2
-    "@jupyterlab/coreutils": ^6.0.2
-    "@jupyterlab/notebook": ^4.0.2
-    "@jupyterlab/services": ^7.0.2
-    "@jupyterlab/settingregistry": ^4.0.2
-  checksum: da5ecf4983e8898cedc589046e8cc50cc97fcfa1c4a384063f9b6cf23437372620b18c0a9c2be01abe5ed9c86835bf4a4aae87e23a779b009afb342a99e88f3b
-  languageName: node
-  linkType: hard
-
 "@educational-technology-collective/etc_jupyterlab_telemetry_library@workspace:.":
   version: 0.0.0-use.local
   resolution: "@educational-technology-collective/etc_jupyterlab_telemetry_library@workspace:."
   dependencies:
-    "@educational-technology-collective/etc_jupyterlab_notebook_state_provider": ^2.0.0
     "@jupyterlab/application": ^4.0.2
     "@jupyterlab/builder": ^4.0.0
     "@jupyterlab/coreutils": ^6.0.2

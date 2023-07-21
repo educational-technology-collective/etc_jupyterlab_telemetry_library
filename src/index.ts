@@ -4,8 +4,6 @@ import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 
 import { Token } from '@lumino/coreutils';
 
-import { IETCJupyterLabNotebookStateProvider } from "@educational-technology-collective/etc_jupyterlab_notebook_state_provider";
-
 import { requestAPI } from "./handler";
 
 import { IConfig } from './types';
@@ -45,11 +43,9 @@ const plugin: JupyterFrontEndPlugin<IETCJupyterLabTelemetryLibraryFactory> = {
   autoStart: true,
   provides: IETCJupyterLabTelemetryLibraryFactory,
   requires: [INotebookTracker],
-  optional: [IETCJupyterLabNotebookStateProvider],
   activate: async (
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
-    etcJupyterLabNotebookStateProvider: IETCJupyterLabNotebookStateProvider
   ): Promise<IETCJupyterLabTelemetryLibraryFactory> => {
 
     const VERSION = await requestAPI<string>("version");
